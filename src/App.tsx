@@ -2,6 +2,14 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+import Clock from './components/clock';
+import Toggle from './components/toggle';
+import Greeting from './components/greeting';
+import LoginControl from './components/loginControl';
+import NumberList from './components/numberList';
+import FormControl from './components/formControl';
+import Calculator from './components/calculator';
+
 function App() {
   return (
     <div className="App">
@@ -16,8 +24,15 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Learn React
+          Learn React 123
         </a>
+        <Clock></Clock>
+        <Toggle></Toggle>
+        <Greeting isLoggedIn={true}></Greeting>
+        <LoginControl></LoginControl>
+        <NumberList numbers={[1,2,3,4,5]}></NumberList>
+        <FormControl></FormControl>
+        <Calculator></Calculator>
       </header>
     </div>
   );
