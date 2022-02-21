@@ -145,7 +145,7 @@ export default class Game extends React.Component<any, IState> {
         this.setState({bulletList,enemyList})
     }
 
-    // 检测组件碰撞
+    // 检测组件碰撞, 子弹和敌人
     checkComponent() {
         let {bulletList,enemyList} = this.state;
         for(let j=0;j<bulletList.length;j++) {
@@ -159,12 +159,16 @@ export default class Game extends React.Component<any, IState> {
                 let sumW = (enemyList[i].w + bulletList[j].w) / 2;
 
                 if (absY < sumH && absX < sumW) {
+                    enemyList[i].life > 0 && bulletList.splice(j,1);
                     enemyList[i].life -= bulletList[j].life;
-                    bulletList.splice(j,1);
-                    if (enemyList[i].life <= 0) {
-                        config.score+= enemyList[i].score;
-                        this.setState({score: this.state.score + enemyList[i].score})
-                        enemyList.splice(i,1);
+                    if (enemyList[i].life <= 0 && enemyList[i].destroy) {
+                        if (enemyList[i].destroying === 0) {
+                            config.score+= enemyList[i].score;
+                            this.setState({score: this.state.score + enemyList[i].score})
+                        }
+                        if (enemyList[i].destroy) {
+                            enemyList.splice(i,1);
+                        }
                     }
                 }
             }
@@ -184,7 +188,7 @@ export default class Game extends React.Component<any, IState> {
             let sumH = (enemyList[i].h + hero.height) / 2;
             let sumW = (enemyList[i].w + hero.width) / 2;
 
-            if (absY < sumH && absX < sumW) {
+            if (absY < sumH && absX < sumW && !enemyList[i].destroy) {
                 config.score+= enemyList[i].score;
                 this.setState({score: this.state.score + enemyList[i].score})
                 hero.life -= 1;
@@ -327,13 +331,16 @@ export default class Game extends React.Component<any, IState> {
 
                         {/* 敌机 */}
                         {this.state.enemyList.map((item: any) => 
-                            <div className="dj" style={{
+                            <div className={"dj"} style={{
                                 top: item.y + 'px',
                                 left: item.x + 'px',
                                 width: item.w + 'px',
                                 height: item.h + 'px',
-                                background: 'url('+require('./image/'+item.image)+') center no-repeat'
-                                }} key={item.id}>{item.life}</div>)}
+                                background: 'url('+require('./image/'+item.image)+') center no-repeat',
+                                backgroundSize: item.w + 'px',
+                                }} key={item.id}>
+                                    {/* {item.life} */}
+                                </div>)}
 
                         {/* 子弹 */}
                         {this.state.bulletList.map((item: any) => 

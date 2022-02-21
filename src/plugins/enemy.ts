@@ -22,6 +22,8 @@ export class Enemy {
                 moveSpeed: this.RandomNum(enemy.minMoveSpeed, enemy.maxMoveSpeed),
                 id: this.id,
                 lastTime: nowTime,
+                destroy: false,
+                destroying: 0,
             }
             // 分数越高速度越快
             enemyObj.moveSpeed = enemyObj.moveSpeed - (enemyObj.moveSpeed * (Math.acosh(config.score||1)/10));
@@ -38,8 +40,16 @@ export class Enemy {
     moveEnemy(enemy: any) {
         let nowTime = +new Date();
         if (nowTime - enemy.lastTime > enemy.moveSpeed)  {
-            enemy.y += enemy.move;
-            enemy.lastTime = nowTime
+            if (enemy.life > 0) {
+                enemy.y += enemy.move;
+                enemy.lastTime = nowTime
+            } else {
+                enemy.image = 'destroy1.png';
+                enemy.destroying++;
+                if (enemy.destroying >= 6) {
+                    enemy.destroy = true;
+                }
+            }
         }
         return enemy
     }
