@@ -15,6 +15,7 @@ interface IState {
     countDown: number
     hero: any
     bg: any
+    timer: any
 }
 
 const ref: any = React.createRef();
@@ -44,6 +45,7 @@ export default class Game extends React.Component<any, IState> {
         super(props)
 
         this.state = {
+            timer: null,
             status: 0,
             countDown: 3,
             score: 0,
@@ -54,6 +56,7 @@ export default class Game extends React.Component<any, IState> {
         }
 
         this.handle = this.handle.bind(this);
+        this.audioPlay = this.audioPlay.bind(this);
         this.start = this.start.bind(this);
         this.renderMenu = this.renderMenu.bind(this);
     }
@@ -88,13 +91,16 @@ export default class Game extends React.Component<any, IState> {
 
     // 背景移动
     moveBg() {
-        const {bg} = this.state;
+        const {bg,status} = this.state;
         bg.lastTime = bg.lastTime || +new Date();
         let nowTime = +new Date();
         if (nowTime - bg.lastTime > bg.speed) {
+            // 分数越高速度越快
+            // bg.speed = status === RUNNING ? bg.speed - (bg.speed * (Math.acosh(config.score||1)/10)) : bg.speed;
             bg.y--;
             if (Math.abs(bg.y) >= config.height) {
                 bg.y = 0;
+                bg.speed-=1;
             }
             bg.lastTime = nowTime;
             this.setState({bg})
@@ -159,17 +165,21 @@ export default class Game extends React.Component<any, IState> {
                 let sumW = (enemyList[i].w + bulletList[j].w) / 2;
 
                 if (absY < sumH && absX < sumW) {
+                    // 保存子弹的攻击力，如果敌机生命值大于0，则受到子弹的攻击，同时销毁子弹
+                    let bulletLife = bulletList[j].life;
                     enemyList[i].life > 0 && bulletList.splice(j,1);
-                    enemyList[i].life -= bulletList[j].life;
-                    if (enemyList[i].life <= 0 && enemyList[i].destroy) {
+                    enemyList[i].life > 0 && (enemyList[i].life -= bulletLife);
+                    // 如果敌机生命值小于等于0，则计算分数（只计算一次）
+                    if (enemyList[i].life <= 0) {
                         if (enemyList[i].destroying === 0) {
                             config.score+= enemyList[i].score;
                             this.setState({score: this.state.score + enemyList[i].score})
                         }
-                        if (enemyList[i].destroy) {
-                            enemyList.splice(i,1);
-                        }
                     }
+                }
+                // 如果敌机已经销毁，则移除它
+                if (enemyList[i].destroy) {
+                    enemyList.splice(i,1);
                 }
             }
         }
@@ -188,11 +198,13 @@ export default class Game extends React.Component<any, IState> {
             let sumH = (enemyList[i].h + hero.height) / 2;
             let sumW = (enemyList[i].w + hero.width) / 2;
 
-            if (absY < sumH && absX < sumW && !enemyList[i].destroy) {
+            // 如果敌机没有被销毁，且与我方飞机相撞则扣除我方飞机一滴血，同时销毁敌方飞机
+            if (absY < sumH && absX < sumW && enemyList[i].destroying === 0) {
                 config.score+= enemyList[i].score;
                 this.setState({score: this.state.score + enemyList[i].score})
                 hero.life -= 1;
                 enemyList.splice(i,1);
+                // 我方飞机没有血量，游戏结束
                 if (hero.life <= 0) {
                     this.setState({status: END});
                 }
@@ -203,7 +215,7 @@ export default class Game extends React.Component<any, IState> {
 
     // 开始
     start() {
-        setInterval(() => {
+        let timer = setInterval(() => {
             switch(this.state.status) {
                 case START:
                     this.moveBg();
@@ -243,6 +255,8 @@ export default class Game extends React.Component<any, IState> {
                     break;
             }
         },10)
+
+        this.setState({timer})
     }
 
     handle(type: string) {
@@ -268,6 +282,12 @@ export default class Game extends React.Component<any, IState> {
                 break;
 
         }
+    }
+
+    // 设置播放声音
+    audioPlay(e: any) {
+        // 设置播放声音0~1
+        e.target.volume = 0.03;
     }
 
     renderMenu(status: number) {
@@ -315,6 +335,8 @@ export default class Game extends React.Component<any, IState> {
         return (
             <div>
                 <div style={{width: '100%'}}>
+
+                    {/* <div className="test"></div> */}
                     <div className="main" style={{
                         width: config.width + 'px',
                         height: config.height + 'px',
@@ -322,6 +344,8 @@ export default class Game extends React.Component<any, IState> {
                         }} ref={ref}>
                         {/* 背景 */}
                         <div className="bg" style={{bottom: bg.y+'px'}}>
+                            <audio src={require('./audio/bullet-default1.mp3')}></audio>
+
                             {[0,1].map((i: any) => <div className="bg-item" key={i} style={{
                                 width: config.width + 'px', 
                                 height: config.height + 'px',
@@ -336,9 +360,13 @@ export default class Game extends React.Component<any, IState> {
                                 left: item.x + 'px',
                                 width: item.w + 'px',
                                 height: item.h + 'px',
-                                background: 'url('+require('./image/'+item.image)+') center no-repeat',
-                                backgroundSize: item.w + 'px',
+                                background: 'url('+require('./image/'+item.image)+') no-repeat',
+                                backgroundPosition: item.bgPosition,
                                 }} key={item.id}>
+                                    {item.destroying > 0 ? 
+                                        <audio src={require('./audio/'+item.audio)} autoPlay></audio>
+                                        : null
+                                    }
                                     {/* {item.life} */}
                                 </div>)}
 
@@ -349,7 +377,9 @@ export default class Game extends React.Component<any, IState> {
                                 left: item.x + 'px',
                                 width: item.w + 'px',
                                 height: item.h + 'px',
-                                }} key={item.id}></span>)}
+                                }} key={item.id}>
+                                    <audio src={require('./audio/'+item.audio)} onCanPlay={(e) => this.audioPlay(e)} autoPlay></audio>
+                                </span>)}
                         
                         {/* 主机 */}
                         {hero.life > 0 ? 
