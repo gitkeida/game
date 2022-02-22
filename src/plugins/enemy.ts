@@ -38,12 +38,14 @@ export class Enemy {
         return null;
     }
 
+    // 移动敌机
     moveEnemy(enemy: any) {
         let nowTime = +new Date();
         if (nowTime - enemy.lastTime > enemy.moveSpeed)  {
             if (enemy.life > 0) {
                 enemy.y += enemy.move;
             } else {
+                // 销毁动画执行中
                 let destroyObj = destroyConfig[enemy.type];
                 enemy.moveSpeed = destroyObj.speed; 
                 if (enemy.destroying < destroyObj.life) {

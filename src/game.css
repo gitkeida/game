@@ -1,4 +1,9 @@
 * {box-sizing: border-box;}
+.bg-box {
+    width: 100%;
+    height: 100%;
+    /* transform: rotateX(65deg); */
+}
 .bg {
     position: absolute;
     width: 100%;
@@ -6,6 +11,16 @@
 .bg-item {
     background: url('./image/bg.jpg') no-repeat;
     background-size: 100%;
+}
+.container {
+    perspective: 1000px;
+}
+.main-box {
+    /* width: 100%; */
+    /* height: 100%; */
+    /* transform: rotateX(60deg) translateY(-600px) translateZ(200px); */
+    /* z-index: 100; */
+    /* position: relative; */
 }
 .main {
     width: 500px;
@@ -15,6 +30,10 @@
     display: block;
     position: relative;
     overflow: hidden;
+    perspective: 200px;
+    /* transform: rotateX(60deg) translateZ(-100px); */
+    background: url('./image/bg4.jpg') no-repeat;
+
 }
 
 .dj {
@@ -26,7 +45,7 @@
     text-align: center;
     color: #fff;
     background-size: 100%;
-    border: 1px solid #ccc;
+    /* border: 1px solid #ccc; */
 }
 
 .fj {
@@ -36,7 +55,6 @@
 
 .zd {
     display: inline-block;
-    border: 1px solid #555;
     background-color: #fff;
     border-radius: 3px 3px 0px 0px;
     position: absolute;
@@ -126,11 +144,39 @@
     font-size: 24px;
 }
 
+.prop-box {
+    width: 50px;
+    height: 50px;
+    border: 2px solid orange;
+    border-radius: 50%;
+    position: absolute;
+    left: 5%;
+    bottom: 10%;
+}
+
+.prop-bag {
+    position: absolute;
+    border-radius: 50%;
+}
+
+.prop-view {
+    position: absolute;
+}
+
 .test {
-    width: 81px;
+    width: 200px;
     height: 120px;
     border: 1px solid #333;
     margin-left: 80px;
-    background: url(./image/destroy1.png) no-repeat;
     background-position: -82px; 
+    perspective: 1000px;
+}
+.test .box {
+    background: pink;
+    width: 100%;
+    height: 100%;
+    transform: rotateX(45deg);
+    perspective: 1000px;
+    perspective-origin: 50% 50%;
+
 }

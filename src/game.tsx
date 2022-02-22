@@ -1,15 +1,18 @@
 import React, { Ref } from "react";
 // import { clearInterval } from "timers";
 import './game.css'
-import {heroConfig, bgConfig, config} from './plugins/config'
+import {heroConfig, bgConfig, config, propConfig} from './plugins/config'
+import { Hero } from "./plugins/hero";
 import { Bullet } from './plugins/bullet'
 import { Enemy } from './plugins/enemy'
-import { Console } from "console";
-import { cursorTo } from "readline";
+import { Prop } from './plugins/prop'
 
 interface IState {
-    enemyList: Array<any>
-    bulletList: Array<any>
+    enemyList: Array<any>       // 敌机列表
+    bulletList: Array<any>      // 子弹列表
+    propBagList: Array<any>     // 道具包列表（道具包里装有道具，拾到则propList添加一条数据）
+    propList: Array<any>        // 道具列表
+    propView: Array<any>        // 使用道具时的列表
     status: number
     score: number
     countDown: number
@@ -39,26 +42,38 @@ export default class Game extends React.Component<any, IState> {
     timer: any;
     lasttime: number = new Date().getTime()
 
+    hero: any
     bullet: any;
     enemy: any;
+    prop: any;
     constructor(props: any) {
         super(props)
+
+        this.hero = new Hero();
+        this.bullet = new Bullet();
+        this.enemy = new Enemy();
+        this.prop = new Prop();
+        this.handle = this.handle.bind(this);
+        this.audioPlay = this.audioPlay.bind(this);
+        this.start = this.start.bind(this);
+        this.renderMenu = this.renderMenu.bind(this);
+
 
         this.state = {
             timer: null,
             status: 0,
             countDown: 3,
             score: 0,
-            hero: heroConfig,
+            hero: this.hero.createHero(),
             bg: bgConfig,
             enemyList: [],
             bulletList: [],
+            propBagList: [],
+            propList: [],
+            propView: []
         }
 
-        this.handle = this.handle.bind(this);
-        this.audioPlay = this.audioPlay.bind(this);
-        this.start = this.start.bind(this);
-        this.renderMenu = this.renderMenu.bind(this);
+
     }
     
     componentDidMount() {
@@ -69,21 +84,29 @@ export default class Game extends React.Component<any, IState> {
 
     // 初始化
     init() {
-        this.bullet = new Bullet();
-        this.enemy = new Enemy();
         
         // 为main绑定鼠标移动事件
         let main = ref.current;
         main.addEventListener("mousemove", (ev: any) => {
-            if (this.state.status === 2) {
+            if (this.state.status === RUNNING) {
                 let x = ev.pageX;
                 let y = ev.pageY;
                 let hero = this.state.hero;
                 hero.x = x - (hero.width / 2) - main.offsetLeft;
                 hero.y = y - (hero.height / 2) - main.offsetTop;
-                // heroConfig.x = hero.x;
-                // heroConfig.y = hero.y;
                 this.setState({hero: hero})
+            }
+        })
+        // 为canvas绑定鼠标移开事件
+        main.addEventListener("mouseleave", (ev: any) => {
+            if (this.state.status === RUNNING) {
+                this.setState({status: PAUSE})
+            }
+        })
+        // 为canvas绑定鼠标进入事件
+        main.addEventListener("mouseenter", (ev: any) => {
+            if (this.state.status === PAUSE) {
+                this.setState({status: RUNNING})
             }
         })
 
@@ -107,8 +130,7 @@ export default class Game extends React.Component<any, IState> {
         }
     }
 
-
-    // 创建组件，子弹、敌机
+    // 创建组件，子弹、敌机、道具包
     createComponent() {
         let bullet = this.bullet.createBullet();
         if (bullet) {
@@ -120,11 +142,16 @@ export default class Game extends React.Component<any, IState> {
             this.state.enemyList.push(enemy);
             this.setState({enemyList: this.state.enemyList})
         }
+        let propBag = this.prop.createPropBag();
+        if (propBag) {
+            this.state.propBagList.push(propBag);
+            this.setState({propBagList: this.state.propBagList})
+        }
     }
 
     // 移动组件，子弹和敌人
     moveComponent() {
-        let {bulletList,enemyList} = this.state;
+        let {bulletList,enemyList,propBagList} = this.state;
         
         for(let i=0;i<bulletList.length;i++) {
             bulletList[i].y-=bulletList[i].move;
@@ -132,7 +159,10 @@ export default class Game extends React.Component<any, IState> {
         for(let i=0;i<enemyList.length;i++) {
             enemyList[i] = this.enemy.moveEnemy(enemyList[i])
         }
-        this.setState({bulletList,enemyList})
+        for(let i=0;i<propBagList.length;i++) {
+            propBagList[i] = this.prop.movePropBag(propBagList[i])
+        }
+        this.setState({bulletList,enemyList,propBagList})
     }
 
     // 移除组件，子弹和敌人
@@ -213,6 +243,27 @@ export default class Game extends React.Component<any, IState> {
         }
     }
 
+    // 检测飞机与道具包相碰
+    checkPropBag() {
+        let {propBagList, hero} = this.state;
+        for(let i=0;i<propBagList.length; i++) {
+            let enemySite = {x: propBagList[i].x + propBagList[i].w/2, y: propBagList[i].y + propBagList[i].h/2}
+            let bulletSite = {x: hero.x + hero.width/2, y: hero.y + hero.height/2}
+
+            let absY = Math.abs(enemySite.y - bulletSite.y);
+            let absX = Math.abs(enemySite.x - bulletSite.x);
+            let sumH = (propBagList[i].h + hero.height) / 2;
+            let sumW = (propBagList[i].w + hero.width) / 2;
+
+            // 如果敌机没有被销毁，且与我方飞机相撞则扣除我方飞机一滴血，同时销毁敌方飞机
+            if (absY < sumH && absX < sumW) {
+                this.state.propList.push(propBagList[i]);
+                propBagList.splice(i,1);
+            }
+    
+        }        
+    }
+
     // 开始
     start() {
         let timer = setInterval(() => {
@@ -220,21 +271,22 @@ export default class Game extends React.Component<any, IState> {
                 case START:
                     this.moveBg();
                     let {hero} = this.state;
+                    hero.life = 0;
                     hero.t = config.height - hero.height;
                     hero.x = (config.width / 2) - (hero.width / 2)
                     this.setState({hero})
                     break;
                 case STARTING:
                     this.moveBg();
+                    config.score = 0;
+                    this.setState({hero: this.hero.createHero(), score: 0})
                     // 倒计时
                     const currentTime = new Date().getTime();
                     if((currentTime - this.lasttime) > 1000){
                         this.setState({countDown: this.state.countDown - 1})
                         // 进入运行状态
                         if(this.state.countDown === 0){
-                            heroConfig.life = heroConfig.baseLife;
-                            config.score = 0;
-                            this.setState({hero: heroConfig, status: RUNNING, score: 0})
+                            this.setState({status: RUNNING})
                         }
                         this.lasttime = currentTime;
                     }
@@ -248,6 +300,7 @@ export default class Game extends React.Component<any, IState> {
                     this.checkHero();
                     break;
                 case END:
+                    this.moveBg();
                     this.setState({
                         enemyList: [],
                         bulletList: []
@@ -305,11 +358,18 @@ export default class Game extends React.Component<any, IState> {
                     <div className="countDown">{this.state.countDown}</div>
                 )
             case RUNNING:
+            case PAUSE:
                 return (
+                    <>
                     <div className="menu-bar">
                         <span>score: {this.state.score}</span>
                         <span>life: {this.state.hero.life}</span>
                     </div>
+
+                    <div className="prop-box" onClick={() => this.handle('prop')} style={{
+                        background: 'url('+require('./image/prop1.png')+') center no-repeat',
+                    }}></div>
+                    </>
                 )
             case END:
                 return (
@@ -334,28 +394,50 @@ export default class Game extends React.Component<any, IState> {
 
         return (
             <div>
-                <div style={{width: '100%'}}>
+                <div className="container" style={{width: '100%'}}>
 
-                    {/* <div className="test"></div> */}
+                    <div className="test">
+                        <div className="box"></div>
+                    </div>
                     <div className="main" style={{
                         width: config.width + 'px',
                         height: config.height + 'px',
                         cursor: status === RUNNING ? 'none' : 'default'
                         }} ref={ref}>
                         {/* 背景 */}
-                        <div className="bg" style={{bottom: bg.y+'px'}}>
-                            <audio src={require('./audio/bullet-default1.mp3')}></audio>
+                        <div className="bg-box">
+                            <div className="bg" style={{bottom: bg.y+'px'}}>
+                                <audio src={require('./audio/bullet-default1.mp3')}></audio>
 
-                            {[0,1].map((i: any) => <div className="bg-item" key={i} style={{
-                                width: config.width + 'px', 
-                                height: config.height + 'px',
-                                background: 'url('+require('./image/'+bg.image)+') center no-repeat'
-                                }}></div>)}
+                                {[0,1].map((i: any) => <div className="bg-item" key={i} style={{
+                                    width: config.width + 'px', 
+                                    height: config.height + 'px',
+                                    background: 'url('+require('./image/'+bg.image)+') center no-repeat'
+                                    }}></div>)}
+                            </div>
                         </div>
 
+                        <div className="main-box">
                         {/* 敌机 */}
                         {this.state.enemyList.map((item: any) => 
                             <div className={"dj"} style={{
+                                top: item.y + 'px',
+                                left: item.x + 'px',
+                                width: item.w + 'px',
+                                height: item.h + 'px',
+                                background: 'url('+require('./image/'+item.image)+') no-repeat',
+                                backgroundPosition: item.bgPosition,
+                                }} key={item.id}>
+                                    {item.destroying > 0 ? 
+                                        <audio src={require('./audio/'+item.audio)} autoPlay></audio>
+                                        : null
+                                    }
+                                    {/* {item.life} */}
+                                </div>)}
+
+                        {/* 道具包 */}
+                        {this.state.propBagList.map((item: any) => 
+                            <div className={"prop-bag"} style={{
                                 top: item.y + 'px',
                                 left: item.x + 'px',
                                 width: item.w + 'px',
@@ -377,6 +459,8 @@ export default class Game extends React.Component<any, IState> {
                                 left: item.x + 'px',
                                 width: item.w + 'px',
                                 height: item.h + 'px',
+                                background: item.type === 'default' ? '#fff' : 'url('+require('./image/'+item.image)+') no-repeat',
+                                backgroundPosition: item.bgPosition,
                                 }} key={item.id}>
                                     <audio src={require('./audio/'+item.audio)} onCanPlay={(e) => this.audioPlay(e)} autoPlay></audio>
                                 </span>)}
@@ -391,9 +475,13 @@ export default class Game extends React.Component<any, IState> {
                                 background: 'url('+require('./image/'+hero.image)+') center no-repeat',
                                 }}></div> :
                             ''}
+
+
                         
                         {/* 菜单 */}
                         {this.renderMenu(status)}
+                        </div>
+
                     </div>
                 </div>
 

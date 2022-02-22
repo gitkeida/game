@@ -15,6 +15,7 @@ export class Bullet {
                 y: heroConfig.y - bullet.h,
                 x: heroConfig.x + (heroConfig.width / 2) - (bullet.w / 2),
                 id: this.id,
+                bgPosition: 'center',   // 背景定位
             }
             this.lastTime = nowTime;
             return bulletObj;
