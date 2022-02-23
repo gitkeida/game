@@ -16,10 +16,10 @@ export const bgConfig: any = {
 }
 
 export const heroList: any = {
-   default: {name: 'me1', width: 105, height: 126, life: 1, image: 'me1.png', bulletType: 'default'},
+   default: {name: 'default', width: 105, height: 126, life: 1, image: 'me1.png', bulletType: 'default'},
    hero1: {name: 'hero1', width: 120, height: 79, life: 1, image: 'hero1.png', bulletType: 'default'},
    hero2: {name: 'hero2', width: 128, height: 128, life: 1, image: 'hero2.png', bulletType: 'middle'},
-   hero3: {name: 'hero3', width: 128, height: 128, life: 1, image: 'hero3.png', bulletType: 'default'},
+   hero3: {name: 'hero3', width: 128, height: 128, life: 1, image: 'hero3.png', bulletType: 'small'},
    hero4: {name: 'hero4', width: 128, height: 128, life: 1, image: 'hero4.png', bulletType: 'small'},
    hero5: {name: 'hero5', width: 128, height: 128, life: 1, image: 'hero5.png', bulletType: 'large'},
    hero6: {name: 'hero6', width: 117, height: 94, life: 1, image: 'hero6.png', bulletType: 'dot'},
@@ -51,14 +51,14 @@ export const enemyConfig: any = {
 }
 
 export const bulletConfig: any = {
-   dot: {name: '圆', type: 'dot', w: 18, h: 18, life: 1, speed: 300, move: 2, audio: 'bullet-default1.mp3', image: 'bullet6.png'},
-   mini: {name: '小型', type: 'mini', w: 14, h: 38, life: 1, speed: 300, move: 2, audio: 'bullet-default1.mp3', image: 'bullet7.png'},
-   default: {name: '普通', type: 'default', w: 6, h: 12, life: 1, speed: 300, move: 2, audio: 'bullet-default1.mp3', image: ''},
-   small: {name: '中小', type: 'small', w: 6, h: 12, life: 1, speed: 300, move: 2, audio: 'bullet-default1.mp3', image: 'bullet3.png'},
-   middle: {name: '中型', type: 'middle', w: 8, h: 15, life: 2, speed: 300, move: 2, audio: 'bullet-default1.mp3', image: 'bullet1.png'},
-   large: {name: '大型', type: 'large', w: 21, h: 59, life: 3, speed: 300, move: 2, audio: 'bullet-default1.mp3', image: 'bullet2.png'},
-   big: {name: '大', type: 'big', w: 42, h: 50, life: 4, speed: 300, move: 2, audio: 'bullet-default1.mp3', image: 'bullet5.png'},
-   boss: {name: 'boss', type: 'boss', w: 42, h: 50, life: 4, speed: 300, move: 2, audio: 'bullet-default1.mp3', image: 'bullet4.png'},
+   dot: {name: '圆', type: 'dot', w: 18, h: 18, life: 1, speed: 400, move: 2, audio: 'bullet-default1.mp3', image: 'bullet6.png'},
+   mini: {name: '小型', type: 'mini', w: 14, h: 38, life: 1, speed: 400, move: 2, audio: 'bullet-default1.mp3', image: 'bullet7.png'},
+   default: {name: '普通', type: 'default', w: 6, h: 12, life: 1, speed: 400, move: 2, audio: 'bullet-default1.mp3', image: ''},
+   small: {name: '中小', type: 'small', w: 6, h: 12, life: 1, speed: 400, move: 2, audio: 'bullet-default1.mp3', image: 'bullet3.png'},
+   middle: {name: '中型', type: 'middle', w: 8, h: 15, life: 2, speed: 400, move: 2, audio: 'bullet-default1.mp3', image: 'bullet1.png'},
+   large: {name: '大型', type: 'large', w: 21, h: 59, life: 3, speed: 500, move: 2, audio: 'bullet-default1.mp3', image: 'bullet2.png'},
+   big: {name: '大', type: 'big', w: 42, h: 50, life: 4, speed: 700, move: 2, audio: 'bullet-default1.mp3', image: 'bullet5.png'},
+   boss: {name: 'boss', type: 'boss', w: 42, h: 50, life: 4, speed: 700, move: 2, audio: 'bullet-default1.mp3', image: 'bullet4.png'},
 }
 
 export const destroyConfig: any = {
@@ -73,5 +73,7 @@ export const destroyConfig: any = {
 }
 
 export const propConfig: any = {
-    prop2: {type: 'prop2', w: 128, h: 128, life: 20, speed: 5000, move: 2, moveSpeed: 30, image: 'prop2.png'}
+    prop1: {type: 'prop1', w: 150, h: 300, life: 20, speed: 500, move: 2, moveSpeed: 0, image: 'prop1.png', audio: 'prop2-use.mp3', bgSize: '300px',},
+    prop2: {type: 'prop2', w: 150, h: 300, life: 20, speed: 500, move: 2, moveSpeed: 0, image: 'prop2.png', audio: 'prop2-use.mp3', bgSize: '300px',},
+    prop3: {type: 'prop3', w: 150, h: 300, life: 20, speed: 500, move: 2, moveSpeed: 0, image: 'prop3.png', audio: 'prop2-use.mp3', bgSize: '300px',},
 }

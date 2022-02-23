@@ -9,10 +9,10 @@
     width: 100%;
 }
 .bg-item {
-    background: url('./image/bg.jpg') no-repeat;
     background-size: 100%;
 }
 .container {
+    margin-top:80px;
     perspective: 1000px;
 }
 .main-box {
@@ -32,8 +32,7 @@
     overflow: hidden;
     perspective: 200px;
     /* transform: rotateX(60deg) translateZ(-100px); */
-    background: url('./image/bg4.jpg') no-repeat;
-
+    /* background: url('./image/bg4.jpg') no-repeat; */
 }
 
 .dj {
@@ -142,6 +141,7 @@
     width: 100%;
     padding: 20px 10px;
     font-size: 24px;
+    color: #fff;
 }
 
 .prop-box {
@@ -154,6 +154,15 @@
     bottom: 10%;
 }
 
+.prop-box-num {
+    position: absolute;
+    top: -20px;
+    right: -3px;
+    font-size: 26px;
+    font-weight: bold;
+    color: #fff;
+}
+
 .prop-bag {
     position: absolute;
     border-radius: 50%;
@@ -163,20 +172,54 @@
     position: absolute;
 }
 
-.test {
-    width: 200px;
-    height: 120px;
-    border: 1px solid #333;
-    margin-left: 80px;
-    background-position: -82px; 
-    perspective: 1000px;
-}
-.test .box {
-    background: pink;
+.hero-select {
     width: 100%;
     height: 100%;
-    transform: rotateX(45deg);
-    perspective: 1000px;
-    perspective-origin: 50% 50%;
-
+    position: absolute;
+    background: url(./image/bg5.jpg) no-repeat;
+    background-size: 100%;
+    top: 0;
+    left: 0;
 }
+.hero-select > .hero-select-list {
+    width: 100%;
+    height: 400px;
+    position: absolute;
+    top: 22%;
+}
+.hero-select-swiper {
+    height: 100%;
+}
+.hero-select > .btn {
+    position: absolute;
+    font-size: 26px;
+    font-weight: bold;
+    color: orange;
+    bottom: 17.5%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: transparent;
+    border: 0;
+    outline: 0;
+    cursor: pointer;
+    padding: 0 30px;
+    transition: all .25s;
+}
+.hero-select > .btn:hover {
+    opacity: 0.8;
+}
+.hero-name {
+    position: absolute;
+    font-size: 26px;
+    font-weight: bold;
+    color: #fff;
+    bottom: 22%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.border .fj, 
+.border .dj, 
+.border .zd, 
+.border .prop-view
+{border: 1px solid #ccc;}

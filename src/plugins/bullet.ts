@@ -8,13 +8,16 @@ export class Bullet {
     createBullet() {
         let nowTime = +new Date();
         if (nowTime - this.lastTime > this.speed) {
-            this.id++;
             let bullet = bulletConfig[heroConfig.bulletType];
+            this.id++;
+            this.speed = bullet.speed;
             let bulletObj = {
                 ...bullet,
                 y: heroConfig.y - bullet.h,
                 x: heroConfig.x + (heroConfig.width / 2) - (bullet.w / 2),
                 id: this.id,
+                lastTime: nowTime,
+                moveSpeed: 1,
                 bgPosition: 'center',   // 背景定位
             }
             this.lastTime = nowTime;
@@ -22,6 +25,16 @@ export class Bullet {
         }
         return null;
     }
+
+    // 子弹移动
+    moveBullet(bullet: any) {
+        let nowTime = +new Date();
+        if (nowTime - bullet.lastTime > bullet.moveSpeed)  {
+            bullet.y -= bullet.move;
+            bullet.lastTime = nowTime
+        }
+        return bullet
+    }   
 
 }
 

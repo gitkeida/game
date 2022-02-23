@@ -1,13 +1,15 @@
 import React, { Ref } from "react";
-// import { clearInterval } from "timers";
+import {Swiper, SwiperSlide} from 'swiper/react';
+import 'swiper/css';
 import './game.css'
-import {heroConfig, bgConfig, config, propConfig} from './plugins/config'
+import {heroConfig, bgConfig, config, propConfig, heroList} from './plugins/config'
 import { Hero } from "./plugins/hero";
 import { Bullet } from './plugins/bullet'
 import { Enemy } from './plugins/enemy'
 import { Prop } from './plugins/prop'
 
 interface IState {
+    heroList: Array<any>       // 飞机列表
     enemyList: Array<any>       // 敌机列表
     bulletList: Array<any>      // 子弹列表
     propBagList: Array<any>     // 道具包列表（道具包里装有道具，拾到则propList添加一条数据）
@@ -19,27 +21,20 @@ interface IState {
     hero: any
     bg: any
     timer: any
+    heroName: string
 }
 
 const ref: any = React.createRef();
 
 const START = 0
-const STARTING = 1
-const RUNNING = 2
-const PAUSE = 3
-const END = 4
+const READY = 1
+const STARTING = 2
+const RUNNING = 3
+const PAUSE = 4
+const END = 5
 
 export default class Game extends React.Component<any, IState> {
 
-    djID: number = 0;
-    zdID: number = 0;
-    djType: Array<any> = [
-        {name: '普通', type: 'default', w: 80, h: 80, life: 1},
-    ]
-    zdType: Array<any> = [
-        {name: '普通', type: 'default', w: 6, h: 12, atk: 1}
-    ]
-    timer: any;
     lasttime: number = new Date().getTime()
 
     hero: any
@@ -61,11 +56,13 @@ export default class Game extends React.Component<any, IState> {
 
         this.state = {
             timer: null,
-            status: 0,
+            status: START,
             countDown: 3,
             score: 0,
             hero: this.hero.createHero(),
+            heroName: config.heroType,
             bg: bgConfig,
+            heroList: Object.keys(heroList).map((key: string) => heroList[key]),
             enemyList: [],
             bulletList: [],
             propBagList: [],
@@ -110,6 +107,15 @@ export default class Game extends React.Component<any, IState> {
             }
         })
 
+        // 监听按键，使用道具
+        document.body.addEventListener('keyup',(ev: any) => {
+            if (this.state.status === RUNNING) {
+                if (ev.keyCode === 32) {
+                    this.handle('useProp');
+                }
+            }
+        })
+
     }
 
     // 背景移动
@@ -149,12 +155,12 @@ export default class Game extends React.Component<any, IState> {
         }
     }
 
-    // 移动组件，子弹和敌人
+    // 移动组件，子弹、敌人、道具包、道具
     moveComponent() {
-        let {bulletList,enemyList,propBagList} = this.state;
+        let {bulletList,enemyList,propBagList,propView} = this.state;
         
         for(let i=0;i<bulletList.length;i++) {
-            bulletList[i].y-=bulletList[i].move;
+            bulletList[i] = this.bullet.moveBullet(bulletList[i])
         }
         for(let i=0;i<enemyList.length;i++) {
             enemyList[i] = this.enemy.moveEnemy(enemyList[i])
@@ -162,14 +168,17 @@ export default class Game extends React.Component<any, IState> {
         for(let i=0;i<propBagList.length;i++) {
             propBagList[i] = this.prop.movePropBag(propBagList[i])
         }
-        this.setState({bulletList,enemyList,propBagList})
+        for(let i=0;i<propView.length;i++) {
+            propView[i] = this.prop.moveProp(propView[i])
+        }
+        this.setState({bulletList,enemyList,propBagList,propView})
     }
 
-    // 移除组件，子弹和敌人
+    // 移除组件，子弹、敌人、道具包
     removeComponent() {
-        let {bulletList,enemyList} = this.state;
+        let {bulletList,enemyList,propBagList,propView} = this.state;
         for(let i=0;i<bulletList.length;i++) {
-            if (bulletList[i].y < 0 + bulletList[i].h) {
+            if (bulletList[i].y < 0 - bulletList[i].h) {
                 bulletList.splice(i,1);
             }
         }
@@ -178,7 +187,17 @@ export default class Game extends React.Component<any, IState> {
                 enemyList.splice(i,1);
             }
         }
-        this.setState({bulletList,enemyList})
+        for(let i=0;i<propBagList.length;i++) {
+            if (propBagList[i].y > config.height + propBagList[i].h) {
+                propBagList.splice(i,1);
+            }
+        }
+        for(let i=0;i<propView.length;i++) {
+            if (propView[i].y < 0 - propView[i].h) {
+                propView.splice(i,1);
+            }
+        }
+        this.setState({bulletList,enemyList,propBagList,propView})
     }
 
     // 检测组件碰撞, 子弹和敌人
@@ -233,7 +252,12 @@ export default class Game extends React.Component<any, IState> {
                 config.score+= enemyList[i].score;
                 this.setState({score: this.state.score + enemyList[i].score})
                 hero.life -= 1;
-                enemyList.splice(i,1);
+                // enemyList.splice(i,1);
+                enemyList[i].life = 0;
+                // 如果敌机已经销毁，则移除它
+                if (enemyList[i].destroy) {
+                    enemyList.splice(i,1);
+                }
                 // 我方飞机没有血量，游戏结束
                 if (hero.life <= 0) {
                     this.setState({status: END});
@@ -255,13 +279,51 @@ export default class Game extends React.Component<any, IState> {
             let sumH = (propBagList[i].h + hero.height) / 2;
             let sumW = (propBagList[i].w + hero.width) / 2;
 
-            // 如果敌机没有被销毁，且与我方飞机相撞则扣除我方飞机一滴血，同时销毁敌方飞机
-            if (absY < sumH && absX < sumW) {
-                this.state.propList.push(propBagList[i]);
-                propBagList.splice(i,1);
+            // 拾取道具包
+            if (absY < sumH && absX < sumW && !propBagList[i].get) {
+                let isProp = this.prop.getProp(propBagList[i])
+                isProp && this.state.propList.push(isProp);
+                // 不要马上销毁，要播放音效，让它下次循环销毁或者自动销毁
+                propBagList[i].get = true;
             }
     
         }        
+        this.setState({propBagList})
+    }
+
+    // 检测组件碰撞, 道具和敌人
+    checkPropEnemy() {
+        let {propView,enemyList} = this.state;
+        for(let j=0;j<propView.length;j++) {
+            for(let i=0;i<enemyList.length;i++) {
+                let enemySite = {x: enemyList[i].x + enemyList[i].w/2, y: enemyList[i].y + enemyList[i].h/2}
+                let bulletSite = {x: propView[j].x + propView[j].w/2, y: propView[j].y + propView[j].h/2}
+
+                let absY = Math.abs(enemySite.y - bulletSite.y);
+                let absX = Math.abs(enemySite.x - bulletSite.x);
+                let sumH = (enemyList[i].h + propView[j].h) / 2;
+                let sumW = (enemyList[i].w + propView[j].w) / 2;
+
+                if (absY < sumH && absX < sumW) {
+                    // 保存子弹的攻击力，如果敌机生命值大于0，则受到子弹的攻击，同时销毁子弹
+                    let propLife = propView[j].life;
+                    // enemyList[i].life > 0 && propView.splice(j,1);
+                    enemyList[i].life > 0 && (enemyList[i].life -= propLife);
+                    // 如果敌机生命值小于等于0，则计算分数（只计算一次）
+                    if (enemyList[i].life <= 0) {
+                        if (enemyList[i].destroying === 0) {
+                            config.score+= enemyList[i].score;
+                            this.setState({score: this.state.score + enemyList[i].score})
+                        }
+                    }
+                }
+                // 如果敌机已经销毁，则移除它
+                if (enemyList[i].destroy) {
+                    enemyList.splice(i,1);
+                }
+            }
+        }
+        this.setState({propView,enemyList})
     }
 
     // 开始
@@ -297,13 +359,19 @@ export default class Game extends React.Component<any, IState> {
                     this.moveComponent();
                     this.removeComponent();
                     this.checkComponent();
+                    this.checkPropEnemy();
                     this.checkHero();
+                    this.checkPropBag();
                     break;
                 case END:
                     this.moveBg();
                     this.setState({
+                        countDown: 3,
                         enemyList: [],
-                        bulletList: []
+                        bulletList: [],
+                        propList: [],
+                        propBagList: [],
+                        propView: [],
                     })
                     break;
             }
@@ -312,7 +380,7 @@ export default class Game extends React.Component<any, IState> {
         this.setState({timer})
     }
 
-    handle(type: string) {
+    handle(type: string, value?: any) {
         switch(type) {
             case 'default':
             case 'hard':
@@ -328,10 +396,29 @@ export default class Game extends React.Component<any, IState> {
                         config.difficuity = 1.6;
                         break;
                 }
-                this.setState({status: STARTING,countDown: 3})
+                this.setState({status: READY,countDown: 3})
+                break;
+            case 'heroSelect':
+                config.heroType = this.state.heroList[value].name;
+                this.setState({heroName: config.heroType})
+                break;
+            case 'start':
+                this.setState({status: STARTING})
                 break;
             case 'restart':
                 this.setState({status: START})
+                break;
+            case 'useProp':
+                let prop = this.state.propList.shift();
+                if (prop) {
+                    prop.x = this.state.hero.x;
+                    this.state.propView.push(prop);
+                    this.setState({
+                        propList: this.state.propList,
+                        propView: this.state.propView
+                    })
+                }
+              
                 break;
 
         }
@@ -353,6 +440,31 @@ export default class Game extends React.Component<any, IState> {
                         <button className="menu-item" onClick={() => this.handle('bug')}>炼狱</button>
                     </div>
                 )
+            case READY:
+                return (
+                    <div className="hero-select">
+                        <div className="hero-select-list">
+                            <Swiper
+                                className="hero-select-swiper"
+                                loop={true}
+                                effect={'coverflow'}
+                                centeredSlides={true}
+                                // spaceBetween={50}
+                                slidesPerView={3}
+                                onSlideChange={(e) => this.handle('heroSelect', e.realIndex)}
+                                onSwiper={(e) => this.handle('heroSelect', e.realIndex)}
+                                >
+                                {this.state.heroList.map((item: any) => 
+                                    <SwiperSlide style={{
+                                        background: 'url('+require('./image/'+item.image)+') center no-repeat',
+                                    }} key={item.name}></SwiperSlide>
+                                )}
+                            </Swiper>
+                        </div>
+                        <p className="hero-name">{config.heroType}</p>
+                        <button className="btn" onClick={() => this.handle('start')}>开&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;始</button>
+                    </div>
+                )
             case STARTING:
                 return (
                     <div className="countDown">{this.state.countDown}</div>
@@ -366,9 +478,11 @@ export default class Game extends React.Component<any, IState> {
                         <span>life: {this.state.hero.life}</span>
                     </div>
 
-                    <div className="prop-box" onClick={() => this.handle('prop')} style={{
-                        background: 'url('+require('./image/prop1.png')+') center no-repeat',
-                    }}></div>
+                    <div className="prop-box" onClick={() => this.handle('useProp')} style={{
+                        background: 'url('+require('./image/propBag1.png')+') center no-repeat',
+                    }}>
+                        <span className="prop-box-num">{this.state.propList.length}</span>
+                    </div>
                     </>
                 )
             case END:
@@ -377,7 +491,7 @@ export default class Game extends React.Component<any, IState> {
                         <h2 className="title">Game Over</h2>
                         <p className="score">您的分数是：{this.state.score}</p>
                         <div className="gameover-menu">
-                            <button className="menu-item" onClick={() => this.handle('restart')}>重新开始</button>
+                            <button className="menu-item" onClick={() => this.handle('start')}>重新开始</button>
                             <button className="menu-item" onClick={() => this.handle('restart')}>返回菜单</button>
                             <button className="menu-item" onClick={() => this.handle('restart')}>退出重来</button>
                         </div>
@@ -444,13 +558,27 @@ export default class Game extends React.Component<any, IState> {
                                 height: item.h + 'px',
                                 background: 'url('+require('./image/'+item.image)+') no-repeat',
                                 backgroundPosition: item.bgPosition,
+                                display: item.get ? 'none' : 'inline-block',
                                 }} key={item.id}>
-                                    {item.destroying > 0 ? 
+                                    {item.get ? 
                                         <audio src={require('./audio/'+item.audio)} autoPlay></audio>
                                         : null
                                     }
-                                    {/* {item.life} */}
                                 </div>)}
+                        
+                        {/* 道具使用 */}
+                        {this.state.propView.map((item: any) => 
+                            <span className="prop-view" style={{
+                                top: item.y + 'px',
+                                left: item.x + 'px',
+                                width: item.w + 'px',
+                                height: item.h + 'px',
+                                background: 'url('+require('./image/'+item.image)+') no-repeat',
+                                backgroundSize: item.bgSize || '100%',
+                                backgroundPosition: item.bgPosition,
+                                }} key={item.id}>
+                                    <audio src={require('./audio/'+item.audio)} autoPlay></audio>
+                                </span>)}
 
                         {/* 子弹 */}
                         {this.state.bulletList.map((item: any) => 
@@ -476,8 +604,6 @@ export default class Game extends React.Component<any, IState> {
                                 }}></div> :
                             ''}
 
-
-                        
                         {/* 菜单 */}
                         {this.renderMenu(status)}
                         </div>
