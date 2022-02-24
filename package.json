@@ -2,6 +2,10 @@
   "name": "react-app-ts",
   "version": "0.1.0",
   "private": true,
+  "main": "main.js",
+  "author": "liqd",
+  "license": "MIT",
+  "description": "REACT GAME",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.2",
@@ -21,7 +25,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "electron": "electron ."
   },
   "eslintConfig": {
     "extends": [
@@ -40,5 +45,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "electron": "^17.1.0"
   }
 }

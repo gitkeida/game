@@ -12,7 +12,6 @@
     background-size: 100%;
 }
 .container {
-    margin-top:80px;
     perspective: 1000px;
 }
 .main-box {
