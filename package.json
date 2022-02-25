@@ -6,6 +6,7 @@
   "author": "liqd",
   "license": "MIT",
   "description": "REACT GAME",
+  "homepage": ".",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.2",
@@ -26,7 +27,20 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "electron": "electron ."
+    "electron": "electron .",
+    "package": "electron-packager ./build react-game --platform=win32 --out ./outApp --electron-version 17.1.0 --overwrite --icon=./build/favicon.ico",
+    "dist": "electron-builder --win --x64"
+  },
+  "build": {
+    "appId": "co12m.game123.app",
+    "files": ["build/**/*","main.js"],
+    "win": {
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    },
+    "extends": null
   },
   "eslintConfig": {
     "extends": [
@@ -47,6 +61,8 @@
     ]
   },
   "devDependencies": {
-    "electron": "^17.1.0"
+    "electron": "17.1.0",
+    "electron-builder": "^22.14.13",
+    "electron-packager": "^15.4.0"
   }
 }

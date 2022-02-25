@@ -375,7 +375,7 @@ export default class Game extends React.Component<any, IState> {
                     })
                     break;
             }
-        },10)
+        },5)
 
         this.setState({timer})
     }
