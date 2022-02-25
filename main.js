@@ -1,6 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path')
 const url = require('url')
+const isDev = require('electron-is-dev');
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -8,13 +9,17 @@ function createWindow() {
         height: 810
     })
 
-    // win.loadFile('./public/index.html')
-    win.loadURL(url.format({
+    const buildUrl = url.format({
         pathname: path.join(__dirname, 'build/index.html'),
         protocol: 'file:',
         slashes: true
-    }))
-    // win.loadURL('http://localhost:3000')
+    })
+
+    console.log(isDev)
+    const urlLocation = isDev ? 'http://localhost:3000' : buildUrl
+    // win.loadFile('./public/index.html')
+    win.loadURL(urlLocation);
+
 }
 
 app.whenReady().then(() => {

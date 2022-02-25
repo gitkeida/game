@@ -125,7 +125,8 @@ export default class Game extends React.Component<any, IState> {
         let nowTime = +new Date();
         if (nowTime - bg.lastTime > bg.speed) {
             // 分数越高速度越快
-            // bg.speed = status === RUNNING ? bg.speed - (bg.speed * (Math.acosh(config.score||1)/10)) : bg.speed;
+            bg.speed = status === RUNNING ? 100 - (100 * (Math.acosh(config.score-50 > 0 ? config.score-50 : 1)/10)) : bg.speed;
+            console.log(bg.speed)
             bg.y--;
             if (Math.abs(bg.y) >= config.height) {
                 bg.y = 0;
@@ -304,7 +305,7 @@ export default class Game extends React.Component<any, IState> {
                 let sumH = (enemyList[i].h + propView[j].h) / 2;
                 let sumW = (enemyList[i].w + propView[j].w) / 2;
 
-                if (absY < sumH && absX < sumW) {
+                if (absY < sumH && absX < sumW && enemyList[i].destroying === 0) {
                     // 保存子弹的攻击力，如果敌机生命值大于0，则受到子弹的攻击，同时销毁子弹
                     let propLife = propView[j].life;
                     // enemyList[i].life > 0 && propView.splice(j,1);
@@ -508,7 +509,7 @@ export default class Game extends React.Component<any, IState> {
 
         return (
             <div>
-                <div className="container" style={{width: '100%'}}>
+                <div className="container border" style={{width: '100%'}}>
 
                     <div className="test">
                         <div className="box"></div>

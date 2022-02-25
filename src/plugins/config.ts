@@ -45,8 +45,8 @@ export const heroConfig: any = {
 export const enemyConfig: any = {
     mini: {name: '小型', type: 'mini', w: 60, h: 43, life: 1, speed: 300, move: 2, maxMoveSpeed: 10, minMoveSpeed: 1, score: 1, image: 'dj11.png', audio: 'enemy-destroy1.mp3'},
     default: {name: '普通', type: 'default', w: 97, h: 75, life: 1, speed: 2000, move: 2, maxMoveSpeed: 50, minMoveSpeed: 30, score: 2, image: 'dj8.png', audio: 'enemy-destroy1.mp3'},
-    middle: {name: '中型', type: 'middle', w: 197, h: 134, life: 5, speed: 4000, move: 2, maxMoveSpeed: 60, minMoveSpeed: 30, score: 5, image: 'dj4.png', audio: 'enemy-destroy1.mp3'},
-    large: {name: '大型', type: 'large', w: 200, h: 200, life: 10, speed: 8000, move: 2, maxMoveSpeed: 90, minMoveSpeed: 70, score: 10, image: 'dj10.png', audio: 'enemy-destroy1.mp3'},
+    middle: {name: '中型', type: 'middle', w: 176, h: 120, life: 5, speed: 4000, move: 2, maxMoveSpeed: 60, minMoveSpeed: 30, score: 5, image: 'dj4.png', audio: 'enemy-destroy1.mp3'},
+    large: {name: '大型', type: 'large', w: 180, h: 136, life: 10, speed: 8000, move: 2, maxMoveSpeed: 90, minMoveSpeed: 70, score: 10, image: 'dj10.png', audio: 'enemy-destroy1.mp3'},
     boss: {name: 'boss', type: 'boss', w: 149, h: 86, life: 30, speed: 10000, move: 2, maxMoveSpeed: 300, minMoveSpeed: 200, score: 100, image: 'boss1.png', audio: 'enemy-destroy1.mp3'},
 }
 
@@ -56,9 +56,9 @@ export const bulletConfig: any = {
    default: {name: '普通', type: 'default', w: 6, h: 12, life: 1, speed: 400, move: 2, audio: 'bullet-default1.mp3', image: ''},
    small: {name: '中小', type: 'small', w: 6, h: 12, life: 1, speed: 400, move: 2, audio: 'bullet-default1.mp3', image: 'bullet3.png'},
    middle: {name: '中型', type: 'middle', w: 8, h: 15, life: 2, speed: 400, move: 2, audio: 'bullet-default1.mp3', image: 'bullet1.png'},
-   large: {name: '大型', type: 'large', w: 21, h: 59, life: 3, speed: 500, move: 2, audio: 'bullet-default1.mp3', image: 'bullet2.png'},
-   big: {name: '大', type: 'big', w: 42, h: 50, life: 4, speed: 700, move: 2, audio: 'bullet-default1.mp3', image: 'bullet5.png'},
-   boss: {name: 'boss', type: 'boss', w: 42, h: 50, life: 4, speed: 700, move: 2, audio: 'bullet-default1.mp3', image: 'bullet4.png'},
+   large: {name: '大型', type: 'large', w: 21, h: 59, life: 3, speed: 550, move: 2, audio: 'bullet-default1.mp3', image: 'bullet2.png'},
+   big: {name: '大', type: 'big', w: 42, h: 50, life: 4, speed: 600, move: 2, audio: 'bullet-default1.mp3', image: 'bullet5.png'},
+   boss: {name: 'boss', type: 'boss', w: 42, h: 50, life: 4, speed: 600, move: 2, audio: 'bullet-default1.mp3', image: 'bullet4.png'},
 }
 
 export const destroyConfig: any = {
