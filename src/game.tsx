@@ -509,7 +509,7 @@ export default class Game extends React.Component<any, IState> {
 
         return (
             <div>
-                <div className="container border" style={{width: '100%'}}>
+                <div className="container" style={{width: '100%'}}>
 
                     <div className="test">
                         <div className="box"></div>
