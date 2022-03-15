@@ -6,22 +6,22 @@ import {heroConfig, bgConfig, config, propConfig, heroList} from './plugins/conf
 import { Hero } from "./plugins/hero";
 import { Bullet } from './plugins/bullet'
 import { Enemy } from './plugins/enemy'
-import { Prop } from './plugins/prop'
+import { Prop } from './plugins/prop';
 
 interface IState {
-    heroList: Array<any>       // 飞机列表
+    heroList: Array<any>        // 飞机列表
     enemyList: Array<any>       // 敌机列表
     bulletList: Array<any>      // 子弹列表
     propBagList: Array<any>     // 道具包列表（道具包里装有道具，拾到则propList添加一条数据）
-    propList: Array<any>        // 道具列表
+    propList: Array<any>        // 道具生成时的列表
     propView: Array<any>        // 使用道具时的列表
-    status: number
-    score: number
-    countDown: number
-    hero: any
-    bg: any
-    timer: any
-    heroName: string
+    status: number              // 游戏状态
+    score: number               // 得分
+    countDown: number           // 倒计时
+    hero: any                   // 英雄飞机
+    bg: any                     // 背景配置
+    timer: any                  // 定时器
+    heroName: string            // 所使用的英雄飞机
 }
 
 const ref: any = React.createRef();
@@ -44,6 +44,7 @@ export default class Game extends React.Component<any, IState> {
     constructor(props: any) {
         super(props)
 
+        // 初始化实例
         this.hero = new Hero();
         this.bullet = new Bullet();
         this.enemy = new Enemy();
@@ -52,8 +53,8 @@ export default class Game extends React.Component<any, IState> {
         this.audioPlay = this.audioPlay.bind(this);
         this.start = this.start.bind(this);
         this.renderMenu = this.renderMenu.bind(this);
-
-
+        
+        // 初始化数据
         this.state = {
             timer: null,
             status: START,
@@ -94,13 +95,13 @@ export default class Game extends React.Component<any, IState> {
                 this.setState({hero: hero})
             }
         })
-        // 为canvas绑定鼠标移开事件
+        // 为main绑定鼠标移开事件
         main.addEventListener("mouseleave", (ev: any) => {
             if (this.state.status === RUNNING) {
                 this.setState({status: PAUSE})
             }
         })
-        // 为canvas绑定鼠标进入事件
+        // 为main绑定鼠标进入事件
         main.addEventListener("mouseenter", (ev: any) => {
             if (this.state.status === PAUSE) {
                 this.setState({status: RUNNING})
@@ -175,7 +176,7 @@ export default class Game extends React.Component<any, IState> {
         this.setState({bulletList,enemyList,propBagList,propView})
     }
 
-    // 移除组件，子弹、敌人、道具包
+    // 移除组件，子弹、敌人、道具包、道具
     removeComponent() {
         let {bulletList,enemyList,propBagList,propView} = this.state;
         for(let i=0;i<bulletList.length;i++) {
@@ -253,7 +254,6 @@ export default class Game extends React.Component<any, IState> {
                 config.score+= enemyList[i].score;
                 this.setState({score: this.state.score + enemyList[i].score})
                 hero.life -= 1;
-                // enemyList.splice(i,1);
                 enemyList[i].life = 0;
                 // 如果敌机已经销毁，则移除它
                 if (enemyList[i].destroy) {
@@ -381,22 +381,19 @@ export default class Game extends React.Component<any, IState> {
         this.setState({timer})
     }
 
+    // 操作
     handle(type: string, value?: any) {
         switch(type) {
             case 'default':
+                config.difficuity = 1;
+                this.setState({status: READY,countDown: 3})
+                break;
             case 'hard':
+                config.difficuity = 1.4;
+                this.setState({status: READY,countDown: 3})
+                break;
             case 'bug':
-                switch(type) {
-                    case 'default':
-                        config.difficuity = 1;
-                        break;
-                    case 'hard':
-                        config.difficuity = 1.4;
-                        break;
-                    case 'bug':
-                        config.difficuity = 1.6;
-                        break;
-                }
+                config.difficuity = 1.6;
                 this.setState({status: READY,countDown: 3})
                 break;
             case 'heroSelect':
@@ -431,6 +428,7 @@ export default class Game extends React.Component<any, IState> {
         e.target.volume = 0.03;
     }
 
+    // 根据状态渲染菜单
     renderMenu(status: number) {
         switch(status) {
             case START:
@@ -503,22 +501,19 @@ export default class Game extends React.Component<any, IState> {
         }
     }
 
-
+    // 渲染函数
     render(): React.ReactNode {
         const {status, hero, bg } = this.state
 
         return (
             <div>
                 <div className="container" style={{width: '100%'}}>
-
-                    <div className="test">
-                        <div className="box"></div>
-                    </div>
                     <div className="main" style={{
                         width: config.width + 'px',
                         height: config.height + 'px',
                         cursor: status === RUNNING ? 'none' : 'default'
                         }} ref={ref}>
+
                         {/* 背景 */}
                         <div className="bg-box">
                             <div className="bg" style={{bottom: bg.y+'px'}}>
@@ -547,7 +542,6 @@ export default class Game extends React.Component<any, IState> {
                                         <audio src={require('./audio/'+item.audio)} autoPlay></audio>
                                         : null
                                     }
-                                    {/* {item.life} */}
                                 </div>)}
 
                         {/* 道具包 */}
@@ -611,7 +605,6 @@ export default class Game extends React.Component<any, IState> {
 
                     </div>
                 </div>
-
             </div>
         )
     }

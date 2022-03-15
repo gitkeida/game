@@ -2,11 +2,12 @@ export const config = {
     statue: 0,      // 游戏状态
     difficuity: 1,  // 难度
     score: 0,       // 积分
-    width: 500,
-    height: 750,
-    heroType: 'hero6',
+    width: 500,     // 窗口宽度
+    height: 750,    // 窗口高度
+    heroType: 'hero6',  // 英雄飞机选择
 }
 
+// 背景配置
 export const bgConfig: any = {
     width: config.width,
     height: config.height,
@@ -15,6 +16,7 @@ export const bgConfig: any = {
     y: 0,
 }
 
+// 英雄飞机列表
 export const heroList: any = {
    default: {name: 'default', width: 105, height: 126, life: 1, image: 'me1.png', bulletType: 'default'},
    hero1: {name: 'hero1', width: 120, height: 79, life: 1, image: 'hero1.png', bulletType: 'default'},
@@ -29,7 +31,7 @@ export const heroList: any = {
 }
 
 const currHero = config.heroType;
-
+// 英雄飞机配置
 export const heroConfig: any = {
     baseLife: 1,
     life: 0,
@@ -42,6 +44,7 @@ export const heroConfig: any = {
     image: heroList[currHero].image
 }
 
+// 敌机配置
 export const enemyConfig: any = {
     mini: {name: '小型', type: 'mini', w: 60, h: 43, life: 1, speed: 300, move: 2, maxMoveSpeed: 10, minMoveSpeed: 1, score: 1, image: 'dj11.png', audio: 'enemy-destroy1.mp3'},
     default: {name: '普通', type: 'default', w: 97, h: 75, life: 1, speed: 2000, move: 2, maxMoveSpeed: 50, minMoveSpeed: 30, score: 2, image: 'dj8.png', audio: 'enemy-destroy1.mp3'},
@@ -50,6 +53,7 @@ export const enemyConfig: any = {
     boss: {name: 'boss', type: 'boss', w: 149, h: 86, life: 30, speed: 10000, move: 2, maxMoveSpeed: 300, minMoveSpeed: 200, score: 100, image: 'boss1.png', audio: 'enemy-destroy1.mp3'},
 }
 
+// 子弹配置
 export const bulletConfig: any = {
    dot: {name: '圆', type: 'dot', w: 18, h: 18, life: 1, speed: 400, move: 2, audio: 'bullet-default1.mp3', image: 'bullet6.png'},
    mini: {name: '小型', type: 'mini', w: 8, h: 15, life: 1, speed: 400, move: 2, audio: 'bullet-default1.mp3', image: 'bullet1.png'},
@@ -61,6 +65,7 @@ export const bulletConfig: any = {
    boss: {name: 'boss', type: 'boss', w: 42, h: 50, life: 4, speed: 500, move: 2, audio: 'bullet-default1.mp3', image: 'bullet4.png'},
 }
 
+// 销毁动画配置
 export const destroyConfig: any = {
     dot: {type: 'dot', w: 97, h: 85, life: 6, speed: 100, image: 'destroy2.png'},
     mini: {type: 'mini', w: 97, h: 85, life: 6, speed: 100, image: 'destroy2.png'},
@@ -72,6 +77,7 @@ export const destroyConfig: any = {
     boss: {type: 'boss', w: 97, h: 85, life: 6, speed: 100, image: 'destroy2.png'},
 }
 
+// 道具包配置
 export const propConfig: any = {
     prop1: {type: 'prop1', w: 150, h: 300, life: 20, speed: 500, move: 2, moveSpeed: 0, image: 'prop1.png', audio: 'prop2-use.mp3', bgSize: '300px',},
     prop2: {type: 'prop2', w: 150, h: 300, life: 20, speed: 500, move: 2, moveSpeed: 0, image: 'prop2.png', audio: 'prop2-use.mp3', bgSize: '300px',},

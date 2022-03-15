@@ -5,6 +5,7 @@ export class Bullet {
     lastTime: number = new Date().getTime();
     speed: number = bulletConfig[heroConfig.bulletType].speed
 
+    // 创建子弹
     createBullet() {
         let nowTime = +new Date();
         if (nowTime - this.lastTime > this.speed) {
