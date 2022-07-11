@@ -7,6 +7,7 @@ import { Hero } from "./plugins/hero";
 import { Bullet } from './plugins/bullet'
 import { Enemy } from './plugins/enemy'
 import { Prop } from './plugins/prop';
+import { useNavigate, Navigate, NavLink  } from 'react-router-dom'
 
 interface IState {
     heroList: Array<any>        // 飞机列表
@@ -418,7 +419,15 @@ export default class Game extends React.Component<any, IState> {
                 }
               
                 break;
-
+            case 'back':
+                // let navigate = useNavigate();
+                // navigate('/');
+                // Navigate({to: '/'})
+                console.log(this.props)
+                clearInterval(this.state.timer)
+                this.setState({timer: null})
+                // this.props.navigate('/')
+                break;
         }
     }
 
@@ -437,6 +446,9 @@ export default class Game extends React.Component<any, IState> {
                         <button className="menu-item" onClick={() => this.handle('default')}>普通</button>
                         <button className="menu-item" onClick={() => this.handle('hard')}>困难</button>
                         <button className="menu-item" onClick={() => this.handle('bug')}>炼狱</button>
+                        <NavLink to="/">
+                            <button className="menu-item" onClick={() => this.handle('back')}>返回</button>
+                        </NavLink>
                     </div>
                 )
             case READY:
@@ -610,3 +622,11 @@ export default class Game extends React.Component<any, IState> {
     }
 
 }
+
+
+// function NavigateComponent (Component: any) {
+//     let navigate = useNavigate()
+//     return (props: any) => <Component {...props} navigate={ navigate }></Component>
+// }
+
+//  NavigateComponent(Game)

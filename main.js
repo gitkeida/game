@@ -7,7 +7,10 @@ const isDev = require('electron-is-dev');
 function createWindow() {
     const win = new BrowserWindow({
         width: 520,
-        height: 810
+        height: 810,
+        webPreferences: {
+            preload: path.join(__dirname, 'electron/preload.js')
+        }
     })
 
     const buildUrl = url.format({
@@ -19,8 +22,10 @@ function createWindow() {
     // 区分打包环境和开发环境
     const urlLocation = isDev ? 'http://localhost:3000' : buildUrl
     // win.loadFile('./public/index.html')
+    
     win.loadURL(urlLocation);
-
+    // 打开开发工具
+    win.webContents.openDevTools()
 }
 
 // app加载完后执行创建window窗口
