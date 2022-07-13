@@ -22,7 +22,7 @@ export default class Home extends React.Component<any, any> {
     render(): React.ReactNode {
         return (
             <div>
-                <h1>Hello Home</h1>
+                <h1 className="drag">Hello Home</h1>
                 <Link to="/game">go to Game</Link>
 
                 <h1>Hello World!</h1>
@@ -40,6 +40,9 @@ export default class Home extends React.Component<any, any> {
                 <hr />
                 <p id="output">{this.state.inform}</p>
                 <button onClick={() => this.handle('inform')}>click inform</button>
+                <hr />
+                新window: game
+                <button onClick={() => this.handle('newGame')}>new Window Game</button>
             </div>
         )
     }
@@ -89,6 +92,9 @@ export default class Home extends React.Component<any, any> {
                 const CLICK_MESSAGE = 'Notification clicked!'
                 new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY })
                 .onclick = () => this.setState({inform: CLICK_MESSAGE})
+                break;
+            case 'newGame':
+                window.electronAPI.createWindow()
                 break;
         }
     }

@@ -15,7 +15,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     openFile: () => ipcRenderer.invoke('dialog:openFile'),
 
     // 主进程 => 渲染器进程
-    onHandleCounter: (callback) => ipcRenderer.on('update-counter', callback)
+    onHandleCounter: (callback) => ipcRenderer.on('update-counter', callback),
+
+    // 创建新窗口
+    createWindow: () => ipcRenderer.invoke('createWindow:game'),
 })
 
 // 在客户端中输出 window.myAPI

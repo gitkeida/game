@@ -1,21 +1,44 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, Tray } = require('electron');
 const path = require('path')
 const url = require('url')
 const isDev = require('electron-is-dev');
-
-
+const { trayInit } = require('./electron/tray')
+let win = null
 
 // 创建window窗口
 function createWindow() {
     // 主进程的window窗口
-    const win = new BrowserWindow({
-        width: 520,
-        height: 810,
+    win = new BrowserWindow({
+        width: 420,
+        height: 410,
+        frame: false,            // 无边框窗口
+        // transparent: true,  // 窗口透明
+        resizable: false,
+        titleBarStyle: 'hidden',    // 隐藏默认的窗口栏
+        titleBarOverlay: {          // 自定义窗口栏
+            color: '#fff',
+            symbolColor: '#74b1be'
+        },
         webPreferences: {
-            preload: path.join(__dirname, 'electron/preload.js'),
-            sandbox: true
+            preload: path.join(__dirname, 'electron/preload.js'),   // 定义预加载脚本
+            sandbox: true                                           // 开启沙盒
         }
     })
+
+    // 设置缩略图工具栏
+    win.setThumbarButtons([
+        {
+            tooltip: 'button1',
+            icon: path.join(__dirname, 'src/image/propBag2.png'),
+            click () {console.log('button1 clicked')}
+        }
+    ])
+
+    // win.setOverlayIcon(path.join(__dirname, 'src/image/propBag2.png'), 'Description for overlay')
+
+    // 图标闪烁
+    win.once('focus', () => win.flashFrame(false))
+    win.flashFrame(true)
 
     // 配置菜单栏
     const menu = Menu.buildFromTemplate([
@@ -42,13 +65,25 @@ function createWindow() {
     })
 
     // 区分打包环境和开发环境
-    const urlLocation = isDev ? 'http://localhost:3000' : buildUrl
+    const urlLocation = isDev ? 'http://localhost:3000/home' : buildUrl
     // win.loadFile('./public/index.html')
     
     win.loadURL(urlLocation);
     // 打开开发工具
     win.webContents.openDevTools()
 }
+
+// 创建一个右键图标任务栏，
+app.setUserTasks([
+    {
+      program: process.execPath,
+      arguments: '--new-window',
+      iconPath: process.execPath,
+      iconIndex: 0,
+      title: 'New Window',
+      description: 'Create a new window'
+    }
+  ])
 
 // app加载完后执行创建window窗口
 app.whenReady().then(() => {
@@ -62,6 +97,12 @@ app.whenReady().then(() => {
     ipcMain.on('counter-value', (_event, value) => {
         console.log(value)
     })
+
+    // 创建新窗口
+    ipcMain.handle('createWindow:game', createGame)
+
+    // 托盘
+    trayInit()
 
     // 创建window窗口
     createWindow();
@@ -94,4 +135,38 @@ async function handleFileOpen() {
     } else {
         return filePaths[0]
     }
+}
+
+function createGame() {
+    app.quit()
+        // 主进程的window窗口
+        const win = new BrowserWindow({
+            width: 520,
+            height: 810,
+            frame: false,            // 无边框窗口
+            // transparent: true,  // 窗口透明
+            titleBarStyle: 'hidden',    // 隐藏默认的窗口栏
+            titleBarOverlay: {          // 自定义窗口栏
+                color: '#fff',
+                symbolColor: '#74b1be'
+            },
+            webPreferences: {
+                preload: path.join(__dirname, 'electron/preload.js'),   // 定义预加载脚本
+                sandbox: true                                           // 开启沙盒
+            }
+        })
+    
+        const buildUrl = url.format({
+            pathname: path.join(__dirname, 'build/index.html'),
+            protocol: 'file:',
+            slashes: true
+        })
+    
+        // 区分打包环境和开发环境
+        const urlLocation = isDev ? 'http://localhost:3000/game' : buildUrl
+        // win.loadFile('./public/index.html')
+        
+        win.loadURL(urlLocation);
+        // 打开开发工具
+        win.webContents.openDevTools()
 }

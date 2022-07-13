@@ -2,6 +2,7 @@ interface IElectronAPI {
   setTitle: (title) => void,
   openFile: () => {},
   onHandleCounter: (callback) => {},
+  createWindow: () => {}
 }
 
 
