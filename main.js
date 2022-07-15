@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu, Tray } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, Tray, BrowserView } = require('electron');
 const path = require('path')
 const url = require('url')
 const isDev = require('electron-is-dev');
@@ -9,6 +9,8 @@ let win = null
 function createWindow() {
     // 主进程的window窗口
     win = new BrowserWindow({
+        title: '飞机大战',
+        icon: path.join(__dirname, 'src/image/hero6.png'),
         width: 420,
         height: 410,
         frame: false,            // 无边框窗口
@@ -24,6 +26,15 @@ function createWindow() {
             sandbox: true                                           // 开启沙盒
         }
     })
+
+    // 图标
+    // let appIcon = new Tray(path.join(__dirname, 'src/image/hero4.png'))
+
+    // 小窗口
+    // const view = new BrowserView()
+    // win.setBrowserView(view)
+    // view.setBounds({ x: 0, y: 0, width: 300, height: 300 })
+    // view.webContents.loadURL('https://electronjs.org')
 
     // 设置缩略图工具栏
     win.setThumbarButtons([
@@ -101,11 +112,11 @@ app.whenReady().then(() => {
     // 创建新窗口
     ipcMain.handle('createWindow:game', createGame)
 
-    // 托盘
-    trayInit()
-
     // 创建window窗口
     createWindow();
+
+    // 托盘
+    trayInit(win)
 
     // 如果没有创建则新建一个
     app.on('activate', function () {

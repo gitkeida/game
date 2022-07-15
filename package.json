@@ -36,6 +36,7 @@
     "appId": "co12m.game123.app",
     "files": [
       "build/**/*",
+      "electron/**/*",
       "main.js"
     ],
     "win": {

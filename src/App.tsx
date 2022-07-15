@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route, Link } from 'react-router-dom'
+import { HashRouter, Router, Route, Link } from 'react-router-dom'
 import Game from './game'
 import Home from './home'
 import './App.css'
@@ -10,11 +10,11 @@ function App() {
             <div className="drag top-drag">
                 <p>title</p>
             </div>
-            <Routes>
+            <Router>
                 <Route path="/" element={ <Home></Home> }></Route>
                 <Route path="/home" element={ <Home></Home> }></Route>
                 <Route path="/game" element={ <Game></Game> }></Route>
-            </Routes>
+            </Router>
         </div>
 
     )
