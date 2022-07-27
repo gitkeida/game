@@ -1,12 +1,13 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu, Tray, BrowserView } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, Tray, BrowserView, globalShortcut } = require('electron');
 const path = require('path')
 const url = require('url')
 const isDev = require('electron-is-dev');
 const { trayInit } = require('./electron/tray')
+const { createWindow } = require('./electron/createWindow')
 let win = null
 
 // 创建window窗口
-function createWindow() {
+function createWindow2() {
     // 主进程的window窗口
     win = new BrowserWindow({
         title: '飞机大战',
@@ -76,12 +77,17 @@ function createWindow() {
     })
 
     // 区分打包环境和开发环境
-    const urlLocation = isDev ? 'http://localhost:3000/home' : buildUrl
+    const urlLocation = isDev ? 'http://localhost:3000#/' : buildUrl
     // win.loadFile('./public/index.html')
     
     win.loadURL(urlLocation);
     // 打开开发工具
     win.webContents.openDevTools()
+
+    // 注册快捷键
+    const openDev = globalShortcut.register('Ctrl+Shift+i', () => {
+        win.webContents.openDevTools()
+    })
 }
 
 // 创建一个右键图标任务栏，
@@ -113,7 +119,7 @@ app.whenReady().then(() => {
     ipcMain.handle('createWindow:game', createGame)
 
     // 创建window窗口
-    createWindow();
+    createWindow('login');
 
     // 托盘
     trayInit(win)
@@ -148,8 +154,11 @@ async function handleFileOpen() {
     }
 }
 
+// 创建游戏窗口
 function createGame() {
     app.quit()
+    createWindow('game')
+    return;
         // 主进程的window窗口
         const win = new BrowserWindow({
             width: 520,
@@ -173,8 +182,9 @@ function createGame() {
             slashes: true
         })
     
+        console.log(buildUrl)
         // 区分打包环境和开发环境
-        const urlLocation = isDev ? 'http://localhost:3000/game' : buildUrl
+        const urlLocation = isDev ? 'http://localhost:3000#/game' : buildUrl + '#/game'
         // win.loadFile('./public/index.html')
         
         win.loadURL(urlLocation);

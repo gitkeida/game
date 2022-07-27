@@ -94,7 +94,7 @@ export default class Home extends React.Component<any, any> {
                 .onclick = () => this.setState({inform: CLICK_MESSAGE})
                 break;
             case 'newGame':
-                window.electronAPI.createWindow()
+                window.electronAPI.createWindow('game')
                 break;
         }
     }

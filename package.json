@@ -36,10 +36,12 @@
     "appId": "co12m.game123.app",
     "files": [
       "build/**/*",
+      "src/**/*",
       "electron/**/*",
       "main.js"
     ],
     "win": {
+      "icon": "src/image/icon.ico",
       "target": [
         "nsis",
         "zip"

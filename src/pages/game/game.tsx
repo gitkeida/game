@@ -2,11 +2,11 @@ import React, { Ref } from "react";
 import {Swiper, SwiperSlide} from 'swiper/react';
 import 'swiper/css';
 import './game.css'
-import {heroConfig, bgConfig, config, propConfig, heroList} from './plugins/config'
-import { Hero } from "./plugins/hero";
-import { Bullet } from './plugins/bullet'
-import { Enemy } from './plugins/enemy'
-import { Prop } from './plugins/prop';
+import {heroConfig, bgConfig, config, propConfig, heroList} from '../../plugins/config'
+import { Hero } from "../../plugins/hero";
+import { Bullet } from '../../plugins/bullet'
+import { Enemy } from '../../plugins/enemy'
+import { Prop } from '../../plugins/prop';
 import { useNavigate, Navigate, NavLink  } from 'react-router-dom'
 
 interface IState {
@@ -446,9 +446,9 @@ export default class Game extends React.Component<any, IState> {
                         <button className="menu-item" onClick={() => this.handle('default')}>普通</button>
                         <button className="menu-item" onClick={() => this.handle('hard')}>困难</button>
                         <button className="menu-item" onClick={() => this.handle('bug')}>炼狱</button>
-                        <NavLink to="/">
+                        {/* <NavLink to="/">
                             <button className="menu-item" onClick={() => this.handle('back')}>返回</button>
-                        </NavLink>
+                        </NavLink> */}
                     </div>
                 )
             case READY:
@@ -467,7 +467,7 @@ export default class Game extends React.Component<any, IState> {
                                 >
                                 {this.state.heroList.map((item: any) => 
                                     <SwiperSlide style={{
-                                        background: 'url('+require('./image/'+item.image)+') center no-repeat',
+                                        background: 'url('+require('../../image/'+item.image)+') center no-repeat',
                                     }} key={item.name}></SwiperSlide>
                                 )}
                             </Swiper>
@@ -490,7 +490,7 @@ export default class Game extends React.Component<any, IState> {
                     </div>
 
                     <div className="prop-box" onClick={() => this.handle('useProp')} style={{
-                        background: 'url('+require('./image/propBag1.png')+') center no-repeat',
+                        background: 'url('+require('../../image/propBag1.png')+') center no-repeat',
                     }}>
                         <span className="prop-box-num">{this.state.propList.length}</span>
                     </div>
@@ -529,12 +529,12 @@ export default class Game extends React.Component<any, IState> {
                         {/* 背景 */}
                         <div className="bg-box">
                             <div className="bg" style={{bottom: bg.y+'px'}}>
-                                <audio src={require('./audio/bullet-default1.mp3')}></audio>
+                                <audio src={require('../../audio/bullet-default1.mp3')}></audio>
 
                                 {[0,1].map((i: any) => <div className="bg-item" key={i} style={{
                                     width: config.width + 'px', 
                                     height: config.height + 'px',
-                                    background: 'url('+require('./image/'+bg.image)+') center no-repeat'
+                                    background: 'url('+require('../../image/'+bg.image)+') center no-repeat'
                                     }}></div>)}
                             </div>
                         </div>
@@ -547,11 +547,11 @@ export default class Game extends React.Component<any, IState> {
                                 left: item.x + 'px',
                                 width: item.w + 'px',
                                 height: item.h + 'px',
-                                background: 'url('+require('./image/'+item.image)+') no-repeat',
+                                background: 'url('+require('../../image/'+item.image)+') no-repeat',
                                 backgroundPosition: item.bgPosition,
                                 }} key={item.id}>
                                     {item.destroying > 0 ? 
-                                        <audio src={require('./audio/'+item.audio)} autoPlay></audio>
+                                        <audio src={require('../../audio/'+item.audio)} autoPlay></audio>
                                         : null
                                     }
                                 </div>)}
@@ -563,12 +563,12 @@ export default class Game extends React.Component<any, IState> {
                                 left: item.x + 'px',
                                 width: item.w + 'px',
                                 height: item.h + 'px',
-                                background: 'url('+require('./image/'+item.image)+') no-repeat',
+                                background: 'url('+require('../../image/'+item.image)+') no-repeat',
                                 backgroundPosition: item.bgPosition,
                                 display: item.get ? 'none' : 'inline-block',
                                 }} key={item.id}>
                                     {item.get ? 
-                                        <audio src={require('./audio/'+item.audio)} autoPlay></audio>
+                                        <audio src={require('../../audio/'+item.audio)} autoPlay></audio>
                                         : null
                                     }
                                 </div>)}
@@ -580,11 +580,11 @@ export default class Game extends React.Component<any, IState> {
                                 left: item.x + 'px',
                                 width: item.w + 'px',
                                 height: item.h + 'px',
-                                background: 'url('+require('./image/'+item.image)+') no-repeat',
+                                background: 'url('+require('../../image/'+item.image)+') no-repeat',
                                 backgroundSize: item.bgSize || '100%',
                                 backgroundPosition: item.bgPosition,
                                 }} key={item.id}>
-                                    <audio src={require('./audio/'+item.audio)} autoPlay></audio>
+                                    <audio src={require('../../audio/'+item.audio)} autoPlay></audio>
                                 </span>)}
 
                         {/* 子弹 */}
@@ -594,10 +594,10 @@ export default class Game extends React.Component<any, IState> {
                                 left: item.x + 'px',
                                 width: item.w + 'px',
                                 height: item.h + 'px',
-                                background: item.type === 'default' ? '#fff' : 'url('+require('./image/'+item.image)+') no-repeat',
+                                background: item.type === 'default' ? '#fff' : 'url('+require('../../image/'+item.image)+') no-repeat',
                                 backgroundPosition: item.bgPosition,
                                 }} key={item.id}>
-                                    <audio src={require('./audio/'+item.audio)} onCanPlay={(e) => this.audioPlay(e)} autoPlay></audio>
+                                    <audio src={require('../../audio/'+item.audio)} onCanPlay={(e) => this.audioPlay(e)} autoPlay></audio>
                                 </span>)}
                         
                         {/* 主机 */}
@@ -607,7 +607,7 @@ export default class Game extends React.Component<any, IState> {
                                 height: hero.height + 'px', 
                                 left: hero.x + 'px', 
                                 top: hero.y + 'px',
-                                background: 'url('+require('./image/'+hero.image)+') center no-repeat',
+                                background: 'url('+require('../../image/'+hero.image)+') center no-repeat',
                                 }}></div> :
                             ''}
 
