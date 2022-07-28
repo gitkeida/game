@@ -3,7 +3,7 @@ const path = require('path')
 const url = require('url')
 const isDev = require('electron-is-dev');
 const { trayInit } = require('./electron/tray')
-const { createWindow } = require('./electron/createWindow')
+const { createWindow, winLiving } = require('./electron/createWindow')
 let win = null
 
 // 创建window窗口
@@ -122,7 +122,7 @@ app.whenReady().then(() => {
     createWindow('login');
 
     // 托盘
-    trayInit(win)
+    trayInit(winLiving.curr)
 
     // 如果没有创建则新建一个
     app.on('activate', function () {

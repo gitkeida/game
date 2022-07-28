@@ -8,7 +8,7 @@ let openDirTools = null;
 const config = {
     title: '飞机大战',
     icon: path.join(__dirname, '../src/image/icon.ico'),
-    // frame: false,            // 无边框窗口
+    frame: false,            // 无边框窗口
     titleBarStyle: 'hidden',    // 隐藏默认的窗口栏
     titleBarOverlay: {          // 自定义窗口栏
         color: '#fff',
@@ -47,7 +47,9 @@ const gameConfig = {
     resizable: false,
 }
 
-const win = {
+// 窗口实例
+const winLiving = {
+    curr: null,
     main: null,
     login: null,
     game: null,
@@ -71,8 +73,8 @@ const createWindow = (type) => {
     }
 
     console.log(options, src)
-    win[type] = new BrowserWindow(options)
-
+    winLiving[type] = new BrowserWindow(options)
+    winLiving.curr = winLiving[type]
     // 打包地址
     const buildUrl = url.format({
         pathname: path.join(__dirname, '../build/index.html'),
@@ -82,13 +84,13 @@ const createWindow = (type) => {
 
     // 区分打包环境和开发环境
     const urlLocation = isDev ? 'http://localhost:3000#/' : buildUrl + '#/'
-    win[type].loadURL(urlLocation + src);
+    winLiving[type].loadURL(urlLocation + src);
 
 
     // 注册快捷键，打开调试工具
     // if (!openDirTools) {
         // openDirTools = globalShortcut.register('Ctrl+Shift+i', () => {
-        //     win[type].webContents.openDevTools()
+        //     winLiving[type].webContents.openDevTools()
         // })
     // }
 
@@ -96,7 +98,7 @@ const createWindow = (type) => {
 
 
 module.exports = {
-    win,
+    winLiving,
     config,
     mainConfig,
     loginConfig,

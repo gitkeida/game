@@ -15,6 +15,8 @@
 
 .login-box .title {
     text-align: center;
+    margin-top: 0;
+    margin-bottom: 35px;
 }
 
 .login-box button {
@@ -24,4 +26,7 @@
     background: #009fef;
     color: #fff;
     cursor: pointer;
+}
+.input-error {
+    border: 2px solid #ee7e8d!important;
 }

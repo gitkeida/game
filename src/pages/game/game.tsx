@@ -428,6 +428,8 @@ export default class Game extends React.Component<any, IState> {
                 this.setState({timer: null})
                 // this.props.navigate('/')
                 break;
+            case 'rankings':
+                break;
         }
     }
 
@@ -442,13 +444,17 @@ export default class Game extends React.Component<any, IState> {
         switch(status) {
             case START:
                 return (
-                    <div className="menu">
-                        <button className="menu-item" onClick={() => this.handle('default')}>普通</button>
-                        <button className="menu-item" onClick={() => this.handle('hard')}>困难</button>
-                        <button className="menu-item" onClick={() => this.handle('bug')}>炼狱</button>
-                        {/* <NavLink to="/">
-                            <button className="menu-item" onClick={() => this.handle('back')}>返回</button>
-                        </NavLink> */}
+                    <div className="menu-box">
+                        <h3 className="menu-title">欢迎用户：test</h3>
+                        <div className="menu">
+                            <button className="menu-item" onClick={() => this.handle('default')}>普通</button>
+                            <button className="menu-item" onClick={() => this.handle('hard')}>困难</button>
+                            <button className="menu-item" onClick={() => this.handle('bug')}>炼狱</button>
+                            <button className="menu-item" onClick={() => this.handle('rankings')}>排行榜</button>
+                            {/* <NavLink to="/">
+                                <button className="menu-item" onClick={() => this.handle('back')}>返回</button>
+                            </NavLink> */}
+                        </div>
                     </div>
                 )
             case READY:
