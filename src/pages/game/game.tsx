@@ -23,6 +23,7 @@ interface IState {
     bg: any                     // 背景配置
     timer: any                  // 定时器
     heroName: string            // 所使用的英雄飞机
+    rankings: Array<any>        // 排行榜
 }
 
 const ref: any = React.createRef();
@@ -33,6 +34,7 @@ const STARTING = 2
 const RUNNING = 3
 const PAUSE = 4
 const END = 5
+const RANKINGS = 6
 
 export default class Game extends React.Component<any, IState> {
 
@@ -69,7 +71,8 @@ export default class Game extends React.Component<any, IState> {
             bulletList: [],
             propBagList: [],
             propList: [],
-            propView: []
+            propView: [],
+            rankings: [],
         }
 
 
@@ -332,6 +335,9 @@ export default class Game extends React.Component<any, IState> {
     start() {
         let timer = setInterval(() => {
             switch(this.state.status) {
+                case RANKINGS:
+                    this.moveBg();
+                    break;
                 case START:
                     this.moveBg();
                     let {hero} = this.state;
@@ -429,6 +435,7 @@ export default class Game extends React.Component<any, IState> {
                 // this.props.navigate('/')
                 break;
             case 'rankings':
+                this.setState({status: RANKINGS})
                 break;
         }
     }
@@ -511,6 +518,50 @@ export default class Game extends React.Component<any, IState> {
                             <button className="menu-item" onClick={() => this.handle('start')}>重新开始</button>
                             <button className="menu-item" onClick={() => this.handle('restart')}>返回菜单</button>
                             <button className="menu-item" onClick={() => this.handle('restart')}>退出重来</button>
+                        </div>
+                    </div>
+                )
+            case RANKINGS:
+                const rankingsList = new Array(10).fill(null)
+                return (
+                    <div className="menu-box">
+                        <h3 className="menu-title">积分排行榜</h3>
+                        <div className="rankings-box">
+                            <div className="rankings-head">
+                                <div className="rankings-item">
+                                    <span className="name">用户</span>
+                                    <span className="type">难度</span>
+                                    <span className="score">分数</span>
+                                </div>
+                            </div>
+                            <div className="rankings-list">
+                                {rankingsList.map((val:any,idx:number) => {
+                                    let item = this.state.rankings[idx]
+                                    if (item) {
+                                        return (
+                                            <div className="rankings-item">
+                                                <span className="id">{idx+1}.</span>
+                                                <span className="name">{item.name}</span>
+                                                <span className="type">{item.type}</span>
+                                                <span className="score">{item.score}</span>
+                                            </div>
+                                        )
+                                    } else {
+                                        return (
+                                            <div className="rankings-item">
+                                                <span className="id">{idx+1}.</span>
+                                                <span className="name">-</span>
+                                                <span className="type">-</span>
+                                                <span className="score">-</span>
+                                            </div>
+                                        )
+                                    }
+                                })}
+                            </div>
+                            <div style={{width: '150px',margin: '0 auto'}}>
+                                <button className="menu-item" onClick={() => this.handle('restart')}>返回</button>
+                            </div>
+
                         </div>
                     </div>
                 )

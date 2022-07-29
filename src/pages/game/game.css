@@ -223,3 +223,41 @@
 .border .zd, 
 .border .prop-view
 {border: 1px solid #ccc;}
+
+/* 排行榜 */
+.rankings-box {
+    width: 88%;
+    margin: 0 auto;
+}
+.rankings-head {
+    padding: 20px 40px;
+}
+.rankings-list {
+    padding: 20px 40px;
+    border: 2px solid orange;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+.rankings-head .rankings-item {
+    /* color: #fff; */
+}
+.rankings-box .rankings-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 20px;
+    color: orange;
+    font-weight: bold;
+    position: relative;
+}
+
+.rankings-box .rankings-item span {
+    width: 20%;
+    text-align: center;
+}
+
+.rankings-box .rankings-item span.id {
+    position: absolute;
+    left: -20px;
+    width: auto;
+}
+

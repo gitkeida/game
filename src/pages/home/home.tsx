@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from 'react-router-dom'
 
 export default class Home extends React.Component<any, any> {
@@ -20,6 +20,8 @@ export default class Home extends React.Component<any, any> {
     }
 
     render(): React.ReactNode {
+        // const [count, setCount] = useState(0);
+
         return (
             <div>
                 <h1 className="drag">Hello Home</h1>
@@ -43,6 +45,9 @@ export default class Home extends React.Component<any, any> {
                 <hr />
                 新window: game
                 <button onClick={() => this.handle('newGame')}>new Window Game</button>
+                <hr />
+                {/* <p>You clicked {count} times</p> */}
+                {/* <button onClick={() => setCount(count + 1)}>Click me</button> */}
             </div>
         )
     }
