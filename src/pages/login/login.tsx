@@ -40,7 +40,7 @@ export default class Login extends React.Component<any, any> {
             return;
         }
         console.log('登录');
-        window.electronAPI.createWindow('game')
+        window.electronAPI.createWindow('game', this.state.username)
     }
 
     handle(type:string, scope?: any) {

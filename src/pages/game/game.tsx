@@ -7,7 +7,8 @@ import { Hero } from "../../plugins/hero";
 import { Bullet } from '../../plugins/bullet'
 import { Enemy } from '../../plugins/enemy'
 import { Prop } from '../../plugins/prop';
-import { useNavigate, Navigate, NavLink  } from 'react-router-dom'
+import { useNavigate, Navigate, NavLink, useSearchParams  } from 'react-router-dom'
+import {UserNameContext} from '../app/App'
 
 interface IState {
     heroList: Array<any>        // 飞机列表
@@ -24,6 +25,9 @@ interface IState {
     timer: any                  // 定时器
     heroName: string            // 所使用的英雄飞机
     rankings: Array<any>        // 排行榜
+    username: string            // 用户名称
+    saved: boolean              // 保存分数
+    type: string                // 游戏类型
 }
 
 const ref: any = React.createRef();
@@ -73,15 +77,39 @@ export default class Game extends React.Component<any, IState> {
             propList: [],
             propView: [],
             rankings: [],
+            username: '系统用户',
+            saved: false,
+            type: '',
         }
 
 
     }
-    
+
     componentDidMount() {
+        this.getRouteParams();
+        this.getRankings();
         // 开始启动
         this.init();
         this.start();
+    }
+
+    // 获取路由参数
+    getRouteParams() {
+        let params = window.location.hash.split('?')[1]
+        if (params) {
+            let username = params.split('=')[1];
+            username = window.decodeURIComponent(username)
+            this.setState({username})
+        }
+    }
+
+    // 获取排行榜分数
+    async getRankings() {
+        let rankings = await window.electronAPI.getStore('score')
+        rankings.sort((a:any, b:any) => b.score - a.score)
+        // console.log('分数',rankings.slice(0,10))
+
+        this.setState({rankings: rankings.slice(0,10)})
     }
 
     // 初始化
@@ -131,7 +159,7 @@ export default class Game extends React.Component<any, IState> {
         if (nowTime - bg.lastTime > bg.speed) {
             // 分数越高速度越快
             bg.speed = status === RUNNING ? 100 - (100 * (Math.acosh(config.score-50 > 0 ? config.score-50 : 1)/10)) : bg.speed;
-            console.log(bg.speed)
+            // console.log(bg.speed)
             bg.y--;
             if (Math.abs(bg.y) >= config.height) {
                 bg.y = 0;
@@ -349,7 +377,7 @@ export default class Game extends React.Component<any, IState> {
                 case STARTING:
                     this.moveBg();
                     config.score = 0;
-                    this.setState({hero: this.hero.createHero(), score: 0})
+                    this.setState({hero: this.hero.createHero(), score: 0, saved: false})
                     // 倒计时
                     const currentTime = new Date().getTime();
                     if((currentTime - this.lasttime) > 1000){
@@ -381,6 +409,7 @@ export default class Game extends React.Component<any, IState> {
                         propBagList: [],
                         propView: [],
                     })
+                    this.saveScore()
                     break;
             }
         },5)
@@ -393,15 +422,15 @@ export default class Game extends React.Component<any, IState> {
         switch(type) {
             case 'default':
                 config.difficuity = 1;
-                this.setState({status: READY,countDown: 3})
+                this.setState({status: READY,countDown: 3, type})
                 break;
             case 'hard':
                 config.difficuity = 1.4;
-                this.setState({status: READY,countDown: 3})
+                this.setState({status: READY,countDown: 3, type})
                 break;
             case 'bug':
                 config.difficuity = 1.6;
-                this.setState({status: READY,countDown: 3})
+                this.setState({status: READY,countDown: 3, type})
                 break;
             case 'heroSelect':
                 config.heroType = this.state.heroList[value].name;
@@ -440,6 +469,37 @@ export default class Game extends React.Component<any, IState> {
         }
     }
 
+    // 保存分数
+    async saveScore() {
+        if (!this.state.saved) {
+            this.setState({saved: true})
+            let data: any = {
+                username: this.state.username,
+                hero: this.state.hero.name,
+                type: this.typeFilter(this.state.type),
+                score: this.state.score,
+                time: +new Date(),
+            }
+            console.log(data)
+            window.electronAPI.setStore('score', data)
+            this.getRankings();
+        }
+    }
+
+    // 游戏类型过滤
+    typeFilter(type: string) {
+        switch(type) {
+            case 'default':
+                return '普通'
+            case 'hard':
+                return '困难'
+            case 'bug':
+                return '炼狱'
+            default:
+                return '普通'
+        }
+    }
+
     // 设置播放声音
     audioPlay(e: any) {
         // 设置播放声音0~1
@@ -452,7 +512,7 @@ export default class Game extends React.Component<any, IState> {
             case START:
                 return (
                     <div className="menu-box">
-                        <h3 className="menu-title">欢迎用户：test</h3>
+                        <h3 className="menu-title">欢迎用户：{this.state.username}</h3>
                         <div className="menu">
                             <button className="menu-item" onClick={() => this.handle('default')}>普通</button>
                             <button className="menu-item" onClick={() => this.handle('hard')}>困难</button>
@@ -517,7 +577,7 @@ export default class Game extends React.Component<any, IState> {
                         <div className="gameover-menu">
                             <button className="menu-item" onClick={() => this.handle('start')}>重新开始</button>
                             <button className="menu-item" onClick={() => this.handle('restart')}>返回菜单</button>
-                            <button className="menu-item" onClick={() => this.handle('restart')}>退出重来</button>
+                            <button className="menu-item" onClick={() => this.handle('rankings')}>排行榜</button>
                         </div>
                     </div>
                 )
@@ -539,16 +599,16 @@ export default class Game extends React.Component<any, IState> {
                                     let item = this.state.rankings[idx]
                                     if (item) {
                                         return (
-                                            <div className="rankings-item">
+                                            <div className="rankings-item" key={idx}>
                                                 <span className="id">{idx+1}.</span>
-                                                <span className="name">{item.name}</span>
+                                                <span className="name">{item.username}</span>
                                                 <span className="type">{item.type}</span>
                                                 <span className="score">{item.score}</span>
                                             </div>
                                         )
                                     } else {
                                         return (
-                                            <div className="rankings-item">
+                                            <div className="rankings-item"  key={idx}>
                                                 <span className="id">{idx+1}.</span>
                                                 <span className="name">-</span>
                                                 <span className="type">-</span>

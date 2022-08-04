@@ -72,7 +72,7 @@ const createWindow = (type) => {
             break;
     }
 
-    console.log(options, src)
+    // console.log(options, src)
     winLiving[type] = new BrowserWindow(options)
     winLiving.curr = winLiving[type]
     // 打包地址

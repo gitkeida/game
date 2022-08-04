@@ -18,7 +18,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onHandleCounter: (callback) => ipcRenderer.on('update-counter', callback),
 
     // 创建新窗口
-    createWindow: (type) => ipcRenderer.invoke('createWindow:'+type),
+    createWindow: (type, params) => ipcRenderer.invoke('createWindow:'+type, params),
+
+    // setStore
+    setStore: (type, value) => ipcRenderer.send('setStore:'+type, value),
+
+    // getStore
+    getStore: (type) => ipcRenderer.invoke('getStore:'+type),
 })
 
 // 在客户端中输出 window.myAPI
