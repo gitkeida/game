@@ -3,6 +3,7 @@ import {config, bulletConfig, heroConfig} from './config'
 export class Bullet {
     id: number = 0;
     lastTime: number = new Date().getTime();
+    // 生成子弹的时间间距，越小则越快
     speed: number = bulletConfig[heroConfig.bulletType].speed
 
     // 创建子弹
@@ -18,7 +19,7 @@ export class Bullet {
                 x: heroConfig.x + (heroConfig.width / 2) - (bullet.w / 2),
                 id: this.id,
                 lastTime: nowTime,
-                moveSpeed: 1,
+                moveSpeed: 1,           // 子弹移动时间间距
                 bgPosition: 'center',   // 背景定位
             }
             this.lastTime = nowTime;

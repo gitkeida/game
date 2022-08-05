@@ -3,6 +3,7 @@ import {config, enemyConfig, heroConfig, destroyConfig} from './config'
 export class Enemy {
     id: number = 0;
     lastTime: number = new Date().getTime();
+    // 敌机生成的时间间距，越小生成敌机越快
     speed: number = enemyConfig.default.speed
     RandomNum = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
     
@@ -24,7 +25,8 @@ export class Enemy {
                 lastTime: nowTime,
                 destroy: false,     // 是否销毁
                 destroying: 0,      // 销毁中
-                bgPosition: 'center',   // 背景定位
+                bgPosition: enemy.sport ? '0 center' : 'center',   // 背景定位，默认居中，如果是动图则从left=0开始
+                sportCount: 0,      // 动图默认0开始，累加动图数，后又等于0，反复循环
             }
             // 分数越高速度越快
             enemyObj.moveSpeed = enemyObj.moveSpeed - (enemyObj.moveSpeed * (Math.acosh(config.score||1)/10));
@@ -44,6 +46,11 @@ export class Enemy {
         if (nowTime - enemy.lastTime > enemy.moveSpeed)  {
             if (enemy.life > 0) {
                 enemy.y += enemy.move;
+                // 动图兼容
+                if(enemy.sport) {
+                    enemy.sportCount = enemy.sportCount === enemy.sport ? 0 : enemy.sportCount + 1;
+                    enemy.bgPosition = `-${enemy.sportCount * enemy.w}px center`
+                }
             } else {
                 // 销毁动画执行中
                 let destroyObj = destroyConfig[enemy.type];
@@ -79,15 +86,18 @@ export class Enemy {
     }
 
     getEnemyType() {
+        let enemyKey = Object.keys(enemyConfig);
         const num = this.RandomNum(1, 100);
+        const keyNum = this.RandomNum(3, enemyKey.length-1)
+
         if (num < 15) {
             return 'mini'
+        } else if (num < 30) {
+            return 'yellow'
         } else if (num < 70) {
             return 'default'
         } else if (num < 88) {
-            return 'middle'
-        } else if (num < 98) {
-            return 'large'
+            return enemyKey[keyNum]
         } else if (num <= 100) {
             return 'boss'
         } else {

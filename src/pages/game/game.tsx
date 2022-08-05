@@ -2,7 +2,7 @@ import React, { Ref } from "react";
 import {Swiper, SwiperSlide} from 'swiper/react';
 import 'swiper/css';
 import './game.css'
-import {heroConfig, bgConfig, config, propConfig, heroList} from '../../plugins/config'
+import {heroConfig, bgConfig, config, bulletConfig, propConfig, heroList} from '../../plugins/config'
 import { Hero } from "../../plugins/hero";
 import { Bullet } from '../../plugins/bullet'
 import { Enemy } from '../../plugins/enemy'
@@ -525,8 +525,35 @@ export default class Game extends React.Component<any, IState> {
                     </div>
                 )
             case READY:
+                let atk = bulletConfig[heroList[config.heroType].bulletType].life,
+                    atkSpeed = bulletConfig[heroList[config.heroType].bulletType].speed,
+                    heroWidth = heroList[config.heroType].width,
+                    heroHeight = heroList[config.heroType].height;
                 return (
+                    // 飞机选择
                     <div className="hero-select">
+                        {/* 飞机属性 */}
+                        <div className="hero-progress-box">
+                            <div className="progress-item">
+                                <span className="label">攻击力</span>
+                                <div className="progress">
+                                    <p className="value" style={{width: (atk / 8 * 100) + '%'}}></p>
+                                </div>
+                            </div>
+                            <div className="progress-item">
+                                <span className="label">攻击速度</span>
+                                <div className="progress">
+                                    <p className="value" style={{width: ((800 - atkSpeed) / 800 * 100) + '%'}}></p>
+                                </div>
+                            </div>
+                            <div className="progress-item">
+                                <span className="label">飞机体积</span>
+                                <div className="progress">
+                                    <p className="value" style={{width: (heroWidth * heroHeight / 2) / 18000 * 100 + '%'}}></p>
+                                </div>
+                            </div>
+                        </div>
+                        {/* 飞机列表 */}
                         <div className="hero-select-list">
                             <Swiper
                                 className="hero-select-swiper"
