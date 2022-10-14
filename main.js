@@ -4,7 +4,7 @@ const url = require('url')
 const isDev = require('electron-is-dev');
 const { trayInit } = require('./electron/tray')
 const { createWindow, winLiving, gameConfig } = require('./electron/createWindow')
-const store = require('./electron/store')
+const ipcMainInstall = require('./electron/ipcMain')
 console.log(app.getPath('userData'))
 
 // app加载完后执行创建window窗口
@@ -12,11 +12,8 @@ app.whenReady().then(() => {
     // 创建新窗口
     ipcMain.handle('createWindow:game', createGame)
 
-    // 保存分数
-    ipcMain.on('setStore:score', handleSetStore)
-
-    // 获取分数
-    ipcMain.handle('getStore:score', handleGetStore)
+    // 主进程通信函数
+    ipcMainInstall();
 
     // 创建window窗口
     createWindow('login');
@@ -35,19 +32,6 @@ app.on('window-all-closed', function() {
     if (process.platform !== 'darwin') app.quit()
 })
 
-
-// 设置存储分数
-function handleSetStore(event, value) {
-    let score = store.get('score') || [];
-    score.push(value)
-    store.set('score', score)
-}
-
-// 获取存储分数
-function handleGetStore() {
-    let score = store.get('score') || [];
-    return score
-}
 
 // 创建游戏窗口
 function createGame(event, params) {

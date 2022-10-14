@@ -4,7 +4,7 @@ export const config = {
     score: 0,       // 积分
     width: 500,     // 窗口宽度
     height: 750,    // 窗口高度
-    heroType: 'hero6',  // 英雄飞机选择
+    heroType: 'default',  // 英雄飞机选择
 }
 
 // 背景配置
@@ -18,20 +18,20 @@ export const bgConfig: any = {
 
 // 英雄飞机列表
 export const heroList: any = {
-   default: {name: 'default', width: 105, height: 126, life: 1, image: 'me1.png', bulletType: 'default'},
-   hero1: {name: 'hero1', width: 120, height: 79, life: 1, image: 'hero1.png', bulletType: 'default'},
-   hero2: {name: 'hero2', width: 128, height: 128, life: 1, image: 'hero2.png', bulletType: 'mini'},
-   hero3: {name: 'hero3', width: 128, height: 128, life: 1, image: 'hero3.png', bulletType: 'small'},
-   hero4: {name: 'hero4', width: 128, height: 128, life: 1, image: 'hero4.png', bulletType: 'hot'},
-   hero5: {name: 'hero5', width: 128, height: 128, life: 1, image: 'hero5.png', bulletType: 'large'},
-   hero6: {name: 'hero6', width: 117, height: 94, life: 1, image: 'hero6.png', bulletType: 'dot'},
-   hero7: {name: 'hero7', width: 100, height: 100, life: 1, image: 'hero7.png', bulletType: 'middle'},
-   hero8: {name: 'hero8', width: 95, height: 89, life: 1, image: 'hero8.png', bulletType: 'big'},
-   hero10: {name: 'hero10', width: 128, height: 128, life: 1, image: 'hero10.png', bulletType: 'hot'},
-   hero11: {name: 'hero11', width: 120, height: 100, life: 1, image: 'hero11.png', bulletType: 'boss'},
-   mini: {name: 'mini', width: 39, height: 75, life: 1, image: 'hero-mini.png', bulletType: 'violet'},
-   boss: {name: 'boss', width: 128, height: 128, life: 2, image: 'hero9.png', bulletType: 'violet'},
-   boss2: {name: 'boss2', width: 135, height: 131, life: 2, image: 'boss2.png', bulletType: 'large'},
+   default: {id: '1', name: 'default', type: 'default', width: 105, height: 126, life: 1, image: 'me1.png', bulletType: 'default', price: 0},
+   hero1: {id: '2', name: 'hero1', type: 'hero1', width: 120, height: 79, life: 1, image: 'hero1.png', bulletType: 'default', price: 500},
+   hero2: {id: '3', name: 'hero2', type: 'hero2', width: 128, height: 128, life: 1, image: 'hero2.png', bulletType: 'mini', price: 1000},
+   hero3: {id: '4', name: 'hero3', type: 'hero3', width: 128, height: 128, life: 1, image: 'hero3.png', bulletType: 'small', price: 1500},
+   hero4: {id: '5', name: 'hero4', type: 'hero4', width: 128, height: 128, life: 1, image: 'hero4.png', bulletType: 'hot', price: 1200},
+   hero5: {id: '6', name: 'hero5', type: 'hero5', width: 128, height: 128, life: 1, image: 'hero5.png', bulletType: 'large', price: 2000},
+   hero6: {id: '7', name: 'hero6', type: 'hero6', width: 117, height: 94, life: 1, image: 'hero6.png', bulletType: 'dot', price: 2500},
+   hero7: {id: '8', name: 'hero7', type: 'hero7', width: 100, height: 100, life: 1, image: 'hero7.png', bulletType: 'middle', price: 3000},
+   hero8: {id: '9', name: 'hero8', type: 'hero8', width: 95, height: 89, life: 1, image: 'hero8.png', bulletType: 'big', price: 4000},
+   hero10: {id: '10', name: 'hero10', type: 'hero10', width: 128, height: 128, life: 1, image: 'hero10.png', bulletType: 'hot', price: 5000},
+   hero11: {id: '11', name: 'hero11', type: 'hero11', width: 120, height: 100, life: 1, image: 'hero11.png', bulletType: 'boss', price: 10000},
+   mini: {id: '12', name: 'mini', type: 'mini', width: 39, height: 75, life: 1, image: 'hero-mini.png', bulletType: 'violet', price: 20000},
+   boss: {id: '13', name: 'boss', type: 'boss', width: 128, height: 128, life: 2, image: 'hero9.png', bulletType: 'violet', price: 25000},
+   boss2: {id: '14', name: 'boss2', type: 'boss2', width: 135, height: 131, life: 2, image: 'boss2.png', bulletType: 'large', price: 30000},
 }
 
 const currHero = config.heroType;
@@ -45,7 +45,8 @@ export const heroConfig: any = {
     x: (config.width / 2) - 50,
     y: config.height - 100,
     bulletType: heroList[currHero].bulletType,
-    image: heroList[currHero].image
+    image: heroList[currHero].image,
+    haveHero: [1]
 }
 
 // 敌机配置

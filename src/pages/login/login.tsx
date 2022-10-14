@@ -22,7 +22,7 @@ export default class Login extends React.Component<any, any> {
             <div>
                 <div className="login-box">
                     <h3 className="title">用户登录</h3>
-                    <input type="text" className={this.state.usernameErr ? 'input-error' : ''} value={this.state.username} onChange={(e) => this.handle('username', e)} placeholder="请输入用户名" />
+                    <input type="text" className={this.state.usernameErr ? 'input-error' : ''} value={this.state.username} onChange={(e) => this.handle('username', e)} onKeyUp={(e) => this.handle('keyup', e)} placeholder="请输入用户名" />
                     <br />
                     <input type="password" defaultValue={this.state.password} placeholder="请输入密码" />
                     <br />
@@ -50,6 +50,11 @@ export default class Login extends React.Component<any, any> {
                     username: scope.target.value,
                     usernameErr: false,
                 })
+                break;
+            case 'keyup':
+                if (scope.keyCode === 13) {
+                    this.login();
+                }
                 break;
         }
     }

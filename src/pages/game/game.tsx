@@ -23,9 +23,10 @@ interface IState {
     hero: any                   // 英雄飞机
     bg: any                     // 背景配置
     timer: any                  // 定时器
-    heroName: string            // 所使用的英雄飞机
+    heroType: string            // 所使用的英雄飞机
     rankings: Array<any>        // 排行榜
     username: string            // 用户名称
+    userInfo: any               // 用户信息
     saved: boolean              // 保存分数
     type: string                // 游戏类型
 }
@@ -68,7 +69,7 @@ export default class Game extends React.Component<any, IState> {
             countDown: 3,
             score: 0,
             hero: this.hero.createHero(),
-            heroName: config.heroType,
+            heroType: config.heroType,
             bg: bgConfig,
             heroList: Object.keys(heroList).map((key: string) => heroList[key]),
             enemyList: [],
@@ -77,11 +78,12 @@ export default class Game extends React.Component<any, IState> {
             propList: [],
             propView: [],
             rankings: [],
-            username: '系统用户',
+            username: '',
+            userInfo: {},
             saved: false,
             type: '',
         }
-
+        console.log(this.state.hero)
 
     }
 
@@ -99,8 +101,25 @@ export default class Game extends React.Component<any, IState> {
         if (params) {
             let username = params.split('=')[1];
             username = window.decodeURIComponent(username)
-            this.setState({username})
+            this.getUserInfo(username)
         }
+    }
+
+    // 获取用户信息
+    async getUserInfo(username: string) {
+        let userInfo = await window.electronAPI.getUser(username);
+        if (!userInfo) {
+            userInfo = {
+                name: username,
+                money: 0,
+                maxScore: 0,
+                createTS: +new Date(),
+                heroList: ['1'],
+            }
+            window.electronAPI.setUser(username, userInfo);
+        }
+        console.log('获取user',userInfo)
+        this.setState({userInfo, username})
     }
 
     // 获取排行榜分数
@@ -208,7 +227,7 @@ export default class Game extends React.Component<any, IState> {
         this.setState({bulletList,enemyList,propBagList,propView})
     }
 
-    // 移除组件，子弹、敌人、道具包、道具
+    // 销毁组件，子弹、敌人、道具包、道具
     removeComponent() {
         let {bulletList,enemyList,propBagList,propView} = this.state;
         for(let i=0;i<bulletList.length;i++) {
@@ -282,15 +301,15 @@ export default class Game extends React.Component<any, IState> {
             let sumW = (enemyList[i].w + hero.width) / 2;
 
             // 如果敌机没有被销毁，且与我方飞机相撞则扣除我方飞机一滴血，同时销毁敌方飞机
-            if (absY < sumH && absX < sumW && enemyList[i].destroying === 0) {
+            if (absY < sumH && absX < sumW && enemyList[i].destroying === 0 && enemyList[i].life > 0) {
                 config.score+= enemyList[i].score;
-                this.setState({score: this.state.score + enemyList[i].score})
                 hero.life -= 1;
                 enemyList[i].life = 0;
                 // 如果敌机已经销毁，则移除它
                 if (enemyList[i].destroy) {
                     enemyList.splice(i,1);
                 }
+                this.setState({score: this.state.score + enemyList[i].score, enemyList})
                 // 我方飞机没有血量，游戏结束
                 if (hero.life <= 0) {
                     this.setState({status: END});
@@ -324,7 +343,7 @@ export default class Game extends React.Component<any, IState> {
         this.setState({propBagList})
     }
 
-    // 检测组件碰撞, 道具和敌人
+    // 检测组件碰撞, 道具和敌人（有bug计算了多次分数）
     checkPropEnemy() {
         let {propView,enemyList} = this.state;
         for(let j=0;j<propView.length;j++) {
@@ -409,7 +428,7 @@ export default class Game extends React.Component<any, IState> {
                         propBagList: [],
                         propView: [],
                     })
-                    this.saveScore()
+                    this.saveStore()
                     break;
             }
         },5)
@@ -433,8 +452,8 @@ export default class Game extends React.Component<any, IState> {
                 this.setState({status: READY,countDown: 3, type})
                 break;
             case 'heroSelect':
-                config.heroType = this.state.heroList[value].name;
-                this.setState({heroName: config.heroType})
+                config.heroType = this.state.heroList[value].type;
+                this.setState({heroType: config.heroType})
                 break;
             case 'start':
                 this.setState({status: STARTING})
@@ -466,23 +485,48 @@ export default class Game extends React.Component<any, IState> {
             case 'rankings':
                 this.setState({status: RANKINGS})
                 break;
+            case 'unlock':
+                let heroCurr = this.state.heroList.find((child:any) => child.type === this.state.heroType)
+                let userInfo = this.state.userInfo;
+                if (this.state.userInfo.money >= heroCurr.price) {
+                    // 解锁
+                    userInfo.money -= heroCurr.price;
+                    userInfo.heroList.push(heroCurr.id);
+                    window.electronAPI.setUser(userInfo.name, userInfo)
+                    this.getUserInfo(userInfo.name);
+                } else {
+                    // 金币不足
+
+                }
+                break;
         }
     }
 
-    // 保存分数
-    async saveScore() {
+    // 保存状态到本地存储
+    async saveStore() {
         if (!this.state.saved) {
             this.setState({saved: true})
-            let data: any = {
+            // 保存积分
+            let scoreData: any = {
                 username: this.state.username,
                 hero: this.state.hero.name,
                 type: this.typeFilter(this.state.type),
                 score: this.state.score,
                 time: +new Date(),
             }
-            console.log(data)
-            window.electronAPI.setStore('score', data)
+            console.log(scoreData)
+            window.electronAPI.setStore('score', scoreData)
             this.getRankings();
+
+            // 保存用户积分信息
+            let userInfo = this.state.userInfo;
+            if (userInfo.maxScore < this.state.score) {
+                userInfo.maxScore = this.state.score;
+            }
+            userInfo.money += this.state.score;
+            console.log('设置user',userInfo)
+            window.electronAPI.setUser(userInfo.name, userInfo)
+            this.getUserInfo(userInfo.name);
         }
     }
 
@@ -506,13 +550,35 @@ export default class Game extends React.Component<any, IState> {
         e.target.volume = 0.03;
     }
 
+    // 根据状态渲染用户信息
+    renderUserInfo(status: number) {
+        switch(status) {
+            case START:
+            case READY:
+            case RANKINGS:
+            // case END:
+                return (
+                <div className="menu-bar">
+                    <span className="currency-box">{this.state.userInfo.money}</span>
+                    {/* <div className="bar-currency">
+                        <div className="bar-currency-img">
+                            <img src={require('../../image/currency1.png')} alt="" />
+                        </div>
+                        <span></span>
+                    </div> */}
+                </div>
+                )
+            
+        }
+    }
+
     // 根据状态渲染菜单
     renderMenu(status: number) {
         switch(status) {
             case START:
                 return (
                     <div className="menu-box">
-                        <h3 className="menu-title">欢迎用户：{this.state.username}</h3>
+                        <h3 className="menu-title">欢迎用户：{this.state.userInfo.name}</h3>
                         <div className="menu">
                             <button className="menu-item" onClick={() => this.handle('default')}>普通</button>
                             <button className="menu-item" onClick={() => this.handle('hard')}>困难</button>
@@ -529,6 +595,7 @@ export default class Game extends React.Component<any, IState> {
                     atkSpeed = bulletConfig[heroList[config.heroType].bulletType].speed,
                     heroWidth = heroList[config.heroType].width,
                     heroHeight = heroList[config.heroType].height;
+                let haveHero = this.state.userInfo.heroList;
                 return (
                     // 飞机选择
                     <div className="hero-select">
@@ -566,14 +633,27 @@ export default class Game extends React.Component<any, IState> {
                                 onSwiper={(e) => this.handle('heroSelect', e.realIndex)}
                                 >
                                 {this.state.heroList.map((item: any) => 
-                                    <SwiperSlide style={{
-                                        background: 'url('+require('../../image/'+item.image)+') center no-repeat',
-                                    }} key={item.name}></SwiperSlide>
+                                    <SwiperSlide  key={item.name}>
+                                        <div style={{
+                                                background: 'url('+require('../../image/'+item.image)+') center no-repeat',
+                                            }} className={ haveHero.indexOf(item.id) > -1 ? 'hero-item' : 'filter-gray hero-item'}
+                                        ></div>
+                                        {haveHero.indexOf(item.id) > -1 ? null : <div className="not-unlock"></div>}
+                                    </SwiperSlide>
                                 )}
                             </Swiper>
                         </div>
                         <p className="hero-name">{config.heroType}</p>
-                        <button className="btn" onClick={() => this.handle('start')}>开&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;始</button>
+                        {haveHero.indexOf(heroList[config.heroType].id) > -1 ? 
+                            <button className="btn" onClick={() => this.handle('start')}>开&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;始</button>
+                            :
+                            <>
+                            <button className="btn" onClick={() => this.handle('unlock')}>解&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;锁</button>
+                            <div className="hero-price">
+                                <span className="currency-box">{heroList[config.heroType].price}</span>
+                            </div>
+                            </>
+                        }
                     </div>
                 )
             case STARTING:
@@ -585,6 +665,7 @@ export default class Game extends React.Component<any, IState> {
                 return (
                     <>
                     <div className="menu-bar">
+                        <span className="currency-box">{this.state.userInfo.money}</span>
                         <span>score: {this.state.score}</span>
                         <span>life: {this.state.hero.life}</span>
                     </div>
@@ -601,6 +682,7 @@ export default class Game extends React.Component<any, IState> {
                     <div className="gameover">
                         <h2 className="title">Game Over</h2>
                         <p className="score">您的分数是：{this.state.score}</p>
+                        <p className="add-currency"><span className="currency-box"> + {this.state.score}</span></p>
                         <div className="gameover-menu">
                             <button className="menu-item" onClick={() => this.handle('start')}>重新开始</button>
                             <button className="menu-item" onClick={() => this.handle('restart')}>返回菜单</button>
@@ -684,6 +766,9 @@ export default class Game extends React.Component<any, IState> {
                         </div>
 
                         <div className="main-box">
+                        {/* 用户信息 */}
+                        {this.renderUserInfo(status)}
+
                         {/* 敌机 */}
                         {this.state.enemyList.map((item: any) => 
                             <div className={"dj"} style={{
@@ -739,6 +824,7 @@ export default class Game extends React.Component<any, IState> {
                                 width: item.w + 'px',
                                 height: item.h + 'px',
                                 background: item.type === 'default' ? '#fff' : 'url('+require('../../image/'+item.image)+') no-repeat',
+                                // backgroundSize: `${item.w}px ${item.h}px`,
                                 backgroundPosition: item.bgPosition,
                                 }} key={item.id}>
                                     <audio src={require('../../audio/'+item.audio)} onCanPlay={(e) => this.audioPlay(e)} autoPlay></audio>

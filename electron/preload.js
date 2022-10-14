@@ -25,6 +25,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     // getStore
     getStore: (type) => ipcRenderer.invoke('getStore:'+type),
+
+    // setUser
+    setUser: (name, value) => ipcRenderer.send('setStore:user', name, value),
+
+    // getUser
+    getUser: (name) => ipcRenderer.invoke('getStore:user', name),
+
 })
 
 // 在客户端中输出 window.myAPI

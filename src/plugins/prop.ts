@@ -43,7 +43,7 @@ export class Prop {
         const bulletKeys = Object.keys(bulletConfig);
 
         if (num > 95) {
-            return {type: 'life', image: 'propBag3.png', name: 'life'}
+            return {type: 'life', image: 'heart.png', name: 'life'}
         } else if (num > 60) {
             return {type: 'prop', image: 'propBag1.png', name: propKeys[this.RandomNum(0,propKeys.length-1)]}
         } else {
